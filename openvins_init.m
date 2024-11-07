@@ -37,7 +37,7 @@ for i=1000:1000
     
     mask=getMask(img);
     
-    imgpyr=buildOpticalFlowPyramid(img,[15,15],3);
+    imgpyr=buildOpticalFlowPyramid(img,[15,15],1);
     
     
     
@@ -51,7 +51,7 @@ for i=1000:1000
         pts0=[];
         ids0=[];
         
-        %[pts0,ids0]=perform_detection_monocular(imgpyr,mask,pts0,ids0);
+        [pts0,ids0]=perform_detection_monocular(imgpyr,mask,pts0,ids0);
         
     
     end

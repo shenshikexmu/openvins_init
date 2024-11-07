@@ -72,6 +72,15 @@ end
 %                      // Now lets get the top number from this
 %                      std::sort(pts_new.begin(), pts_new.end(), Grider_FAST::compare_response);
 %
+
+
+
+
+
+
+
+
+
 %                      // Append the "best" ones to our vector
 %                      // Note that we need to "correct" the point u,v since we extracted it in a ROI
 %                      // So we should append the location of that ROI in the image

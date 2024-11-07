@@ -11,9 +11,9 @@ dataType = class(img0pyr{1});  % 确认类型
 
 grid_2d_close = cast(zeros(floor(rows/min_px_dist), floor(cols/min_px_dist), 1),dataType);
 
-%size_grid=[int(rows/grid_y),int(cols/grid_x)];
+%size_grid=[grid_y,grid_x];
 
-grid_2d_grid= cast(zeros(floor(rows/grid_y),floor(cols/grid_x),1),dataType);
+grid_2d_grid= cast(zeros(grid_y,grid_x,1),dataType);
 
 mask0_updated=mask0;
 
@@ -38,7 +38,7 @@ if (num_featsneeded< min(20,min_feat_percent*num_features))
 end
 
 
-mask0_grid=cv_resize(mask0, [floor(rows/grid_y),floor(cols/grid_x)],0,0, 'INTER_NEAREST');
+mask0_grid=cv_resize(mask0, [grid_y,grid_x],0,0, 'INTER_NEAREST');
 
 num_features_grid= floor(num_features/(grid_x*grid_y))+1;
 
