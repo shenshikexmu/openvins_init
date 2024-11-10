@@ -43,105 +43,99 @@ size_y = size(img,1) / grid_y;
 % Parallelize our 2d grid extraction!!
 %collection(valid_locs.size());
 
-for r=1:1%size(valid_locs,1)
+collection=[];
+
+for r=1:size(valid_locs,1)
 
     % Calculate what cell xy value we are in
     grid=valid_locs(r,:);
-    x=grid(1)*size_x;
-    y=grid(2)*size_y;
+    x=floor((grid(1)-1)*size_x+1);
+    y=floor((grid(2)-1)*size_y+1);
     
     % Skip if we are out of bounds
-    if (x + size_x > size(img,2) || y + size_y > size(img,1))
-        continue
+    if (x + size_x -1 > size(img,2) || y + size_y -1 > size(img,1))
+%        x + size_x -1
+%        y + size_y -1
+        continue;
     end
     
+    img_roi=img(y:y+floor(size_y)-1,x:x+floor(size_x)-1);
     
+    % cv_FAST(img(y:y+floor(size_y),x:x+floor(size_x)), pts_new, threshold, nonmaxSuppression);
+    pts_new = cv_FAST(img_roi, threshold, nonmaxSuppression);
+
+%    figure
+%    imshow(img_roi); hold on;
+%    plot(pts_new(:, 1), pts_new(:, 2), 'r+'); 
+
+    % Now lets get the top number from this
+    pts_new = sortrows(pts_new, -3); 
+    
+    % Append the "best" ones to our vector
+    % Note that we need to "correct" the point u,v since we extracted it in a ROI
+    % So we should append the location of that ROI in the image
+    collection_tmp=[];
+    for i=1:min(num_features_grid,size(pts_new,1))
+        %Create keypoint
+        pt_cor_pt_x=pts_new(i,1)+x-1;
+        pt_cor_pt_y=pts_new(i,2)+y-1;
+
+        % Reject if out of bounds (shouldn't be possible...)
+
+        if ( pt_cor_pt_x < 0 || pt_cor_pt_x > size(img,2) || pt_cor_pt_y < 0 || pt_cor_pt_y> size(img,1))
+            continue;
+        end
+
+        % Check if it is in the mask region
+        % NOTE: mask has max value of 255 (white) if it should be removed
+        if (mask(pt_cor_pt_y,pt_cor_pt_x) >127)
+            continue;
+        end
+
+        collection_tmp=[collection_tmp;pt_cor_pt_x,pt_cor_pt_y,pts_new(i,3)];
+
+    end
+
+    collection{r}=collection_tmp;
     
 end
 
+% Combine all the collections into our single vector
+pts=[];
+for r=1:length(collection)
+    
+    pts=[pts;collection{r}];
+
+end
+
+% figure
+% imshow(img); hold on;
+% plot(pts(:, 1), pts(:, 2), 'r+'); 
+
+%  Return if no points
+if (size(pts,1)==0)
+    return;
+end
  
+win_size = [5, 5];         % 窗口大小
+zero_zone = [-1, -1];      % 禁用区域
+term_crit.type = "CV_TERMCRIT_ITER+EPS"; % 终止条件 [最大迭代次数, epsilon]
+term_crit.epsilon=0.001;
+term_crit.max_iter=20;
 
-%
-%                      // Calculate where we should be extracting from
-%                      cv::Rect img_roi = cv::Rect(x, y, size_x, size_y);
-%
-%                      // Extract FAST features for this part of the image
-%                      std::vector<cv::KeyPoint> pts_new;
-%                      cv::FAST(img(img_roi), pts_new, threshold, nonmaxSuppression);
-%
-%                      // Now lets get the top number from this
-%                      std::sort(pts_new.begin(), pts_new.end(), Grider_FAST::compare_response);
-%
+% Finally get sub-pixel for all extracted features
+pts_refined = cv_cornerSubPix(img, pts(:,1:2), win_size, zero_zone, term_crit);
 
 
+% figure;
+% imshow(img); hold on;
+% plot(pts(:,1), pts(:,2), 'r.', 'MarkerSize', 7);
+% plot(pts_refined(:,1), pts_refined(:,2), 'g.', 'MarkerSize', 7);
+% legend('Initial Corners', 'Refined Corners');
 
+% Save the refined points!
+pts(:,1:2)=pts_refined;
 
-
-
-
-
-
-%                      // Append the "best" ones to our vector
-%                      // Note that we need to "correct" the point u,v since we extracted it in a ROI
-%                      // So we should append the location of that ROI in the image
-%                      for (size_t i = 0; i < (size_t)num_features_grid && i < pts_new.size(); i++) {
-%
-%                        // Create keypoint
-%                        cv::KeyPoint pt_cor = pts_new.at(i);
-%                        pt_cor.pt.x += (float)x;
-%                        pt_cor.pt.y += (float)y;
-%
-%                        // Reject if out of bounds (shouldn't be possible...)
-%                        if ((int)pt_cor.pt.x < 0 || (int)pt_cor.pt.x > img.cols || (int)pt_cor.pt.y < 0 || (int)pt_cor.pt.y > img.rows)
-%                          continue;
-%
-%                        // Check if it is in the mask region
-%                        // NOTE: mask has max value of 255 (white) if it should be removed
-%                        if (mask.at<uint8_t>((int)pt_cor.pt.y, (int)pt_cor.pt.x) > 127)
-%                          continue;
-%                        collection.at(r).push_back(pt_cor);
-%                      }
-%                    }
-%                  }));
-%
-%    // Combine all the collections into our single vector
-%    for (size_t r = 0; r < collection.size(); r++) {
-%      pts.insert(pts.end(), collection.at(r).begin(), collection.at(r).end());
-%    }
-%
-%    // Return if no points
-%    if (pts.empty())
-%      return;
-%
-%    // Sub-pixel refinement parameters
-%    cv::Size win_size = cv::Size(5, 5);
-%    cv::Size zero_zone = cv::Size(-1, -1);
-%    cv::TermCriteria term_crit = cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 20, 0.001);
-%
-%    // Get vector of points
-%    std::vector<cv::Point2f> pts_refined;
-%    for (size_t i = 0; i < pts.size(); i++) {
-%      pts_refined.push_back(pts.at(i).pt);
-%    }
-%
-%    // Finally get sub-pixel for all extracted features
-%    cv::cornerSubPix(img, pts_refined, win_size, zero_zone, term_crit);
-%
-%    // Save the refined points!
-%    for (size_t i = 0; i < pts.size(); i++) {
-%      pts.at(i).pt = pts_refined.at(i);
-%    }
-%  }
-%};
-% 
-% 
-% 
-% 
-% 
- 
- 
- 
- 
  
  
 end

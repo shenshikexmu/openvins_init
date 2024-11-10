@@ -1,4 +1,4 @@
-clear all
+%clear all
 clc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%  matlab
@@ -34,6 +34,8 @@ threshold=fast_threshold;
 for i=1000:1000
 
     img=imread([file_cam0,'data/',datacsv_cam0{i,2}]);
+
+    %img=im2double(img_uint8);
     
     mask=getMask(img);
     
@@ -44,9 +46,9 @@ for i=1000:1000
     for s=1:size(imgpyr,2)
     
     
-        figure 
-        
-        imshow(imgpyr{s});
+%         figure 
+%         
+%         imshow(imgpyr{s});
         
         pts0=[];
         ids0=[];

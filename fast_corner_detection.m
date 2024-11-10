@@ -50,12 +50,26 @@ function keypoints = fast_corner_detection(img, threshold)
             brighter = circle_pixels > (center_pixel + threshold);
             darker = circle_pixels < (center_pixel - threshold);
             
-            % Check if there are at least 12 consecutive brighter or darker pixels
-            if any(conv([brighter; brighter], ones(12, 1), 'valid') == 12) || ...
-               any(conv([darker; darker], ones(12, 1), 'valid') == 12)
+            % Check if there are at least 9 consecutive brighter or darker pixels
+            if any(conv([brighter; brighter], ones(9, 1), 'valid') == 9) || ...
+               any(conv([darker; darker], ones(9, 1), 'valid') == 9)
                 % Mark this as a keypoint
                 keypoints = [keypoints; x, y]; %#ok<AGROW>
             end
         end
     end
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 end
