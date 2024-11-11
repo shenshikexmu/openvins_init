@@ -7,11 +7,11 @@ function corners = cv_cornerSubPix(image, corners, winSize, zeroZone, criteria)
     
     max_iters = 100;  % default max iterations
     eps = 0.01;       % default epsilon
-    if criteria.type == "CV_TERMCRIT_ITER"
+    if strcmp(criteria.type , "CV_TERMCRIT_ITER")
         max_iters = criteria.max_iter;
-    elseif criteria.type == "CV_TERMCRIT_EPS"
+    elseif strcmp(criteria.type , "CV_TERMCRIT_EPS")
         eps = criteria.epsilon;
-    elseif criteria.type == "CV_TERMCRIT_ITER+EPS"
+    elseif strcmp(criteria.type , "CV_TERMCRIT_ITER+EPS")
         eps = criteria.epsilon;
         max_iters = criteria.max_iter;
     end

@@ -1,4 +1,4 @@
-function [nextPts, status, err] = calcOpticalFlowPyrLK_doubao(prevImg, nextImg, prevPts, winSize, maxLevel, criteria, derivLambda, flags)
+function [nextPts, status, err] = calcOpticalFlowPyrLK_doubao(prevPyr, nextPyr, prevPts, winSize, maxLevel, criteria, derivLambda, flags)
     % 初始化参数
     lambda1 = 1 - derivLambda;
     lambda2 = derivLambda;
@@ -10,7 +10,7 @@ function [nextPts, status, err] = calcOpticalFlowPyrLK_doubao(prevImg, nextImg, 
 
     % 断言检查
     assert(maxLevel >= 0 && winSize(1) > 2 && winSize(2) > 2);
-    assert(all(size(prevImg) == size(nextImg)) && isequal(class(prevImg), class(nextImg)));
+    assert(all(size(prevPyr) == size(nextPyr)) && isequal(class(prevPyr), class(nextPyr)));
 
     npoints = size(prevPts, 1);
     nextPts = zeros(npoints, 2);
@@ -21,15 +21,15 @@ function [nextPts, status, err] = calcOpticalFlowPyrLK_doubao(prevImg, nextImg, 
         return;
     end
 
-    % 构建图像金字塔
-    prevPyr = cell(maxLevel+1, 1);
-    nextPyr = cell(maxLevel+1, 1);
-    prevPyr{1} = prevImg;
-    nextPyr{1} = nextImg;
-    for level = 2:maxLevel+1
-        prevPyr{level} = impyramid(prevPyr{level-1}, 'reduce');
-        nextPyr{level} = impyramid(nextPyr{level-1}, 'reduce');
-    end
+%     % 构建图像金字塔
+%     prevPyr = cell(maxLevel+1, 1);
+%     nextPyr = cell(maxLevel+1, 1);
+%     prevPyr{1} = prevImg;
+%     nextPyr{1} = nextImg;
+%     for level = 2:maxLevel+1
+%         prevPyr{level} = impyramid(prevPyr{level-1}, 'reduce');
+%         nextPyr{level} = impyramid(nextPyr{level-1}, 'reduce');
+%     end
 
     % 设置终止条件
     if ~ismember('count', criteria.type)
@@ -40,7 +40,26 @@ function [nextPts, status, err] = calcOpticalFlowPyrLK_doubao(prevImg, nextImg, 
         criteria.epsilon = 0.01;
     else
         criteria.epsilon = min(max(criteria.epsilon, 0), 10);
-    criteria.epsilon = criteria.epsilon^2;
+        criteria.epsilon = criteria.epsilon^2;
+        
+    end
+
+
+    if strcmp(criteria.type , "CV_TERMCRIT_ITER")
+        max_iters = criteria.max_iter;
+    elseif strcmp(criteria.type , "CV_TERMCRIT_EPS")
+        eps = criteria.epsilon;
+    elseif strcmp(criteria.type , "CV_TERMCRIT_ITER+EPS")
+        eps = criteria.epsilon;
+        max_iters = criteria.max_iter;
+    end
+
+
+
+
+
+
+
 
     for level = maxLevel:-1:0
         imgSize = size(prevPyr{level+1});

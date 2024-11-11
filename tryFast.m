@@ -1,13 +1,14 @@
-clear all
+%clear all
 clc
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
+pkg load image
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+image_org=imread('1403715550312143104.png');
 
+[rows, cols] = size(image_org);
 
-image=imread('1403715573812143104.png');
-
-% [rows, cols] = size(image_org);
-% 
-% image=image_org(rows/2+1:rows,cols/2+1:cols,:);
+image=image_org(rows/2+1:rows,cols/2+1:cols,:);
 % 
 % image_new=image(1:57,138:246,:);
 % 
@@ -53,4 +54,4 @@ imshow(image); hold on;
 plot(pts_refined(:,1), pts_refined(:,2), 'g.', 'MarkerSize', 7);
 plot(pts(:,1), pts(:,2), 'r.', 'MarkerSize', 7);
 %plot(29.57, 11.6, 'b.', 'MarkerSize', 5);
-legend('Initial Corners', 'Refined Corners');
+legend('Refined Corners','Initial Corners');
