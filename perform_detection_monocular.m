@@ -93,7 +93,7 @@ for i=1:size(pts0_ext,1)
     x_grid=pts0_ext(i,1)/min_px_dist;
     y_grid=pts0_ext(i,2)/min_px_dist;
     
-    if (x_grid<0 || x_grid> size_close(2) || y_grid <0 || y_grid >size_close(1))
+    if (x_grid<0.5 || x_grid> size_close(2) || y_grid <0.5 || y_grid >size_close(1))
         continue;
     end
 %    i
@@ -104,10 +104,13 @@ for i=1:size(pts0_ext,1)
         continue;
     end
     
+    
+    
     % Else lets add it!
     kpts0_new=[kpts0_new;pts0_ext(i,:)];
     pts0_new=[pts0_new;pts0_ext(i,1:2)];
-    %grid_2d_close(floor(y_grid+0.5),floor(x_grid+0.5))=255;
+    grid_2d_close(max(floor(y_grid),1),max(floor(x_grid),1))=255;
+   
     
 end
 
