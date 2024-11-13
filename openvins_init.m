@@ -1,15 +1,18 @@
 %clear all
 clc
+addpath('ShanzhaiCV');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%  matlab
-file_cam0='../bag/V1_02_medium/mav0/cam0/';
-datacsv_cam0=readcell([file_cam0,'data.csv']);
+matlab=0;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% octave
-% pkg load io
-% pkg load image
-% file_cam0 ='../bag/V1_02_medium/mav0/cam0/';
-% datacsv_cam0 = csv2cell([file_cam0,'data.csv']);
+if  matlab ==1   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  matlab
+    file_cam0='../bag/V1_02_medium/mav0/cam0/';
+    datacsv_cam0=readcell([file_cam0,'data.csv']);
+else             %%%%%%%%%%%%%%%%%%%%%%%%%%%%% octave
+    pkg load io
+    pkg load image
+    file_cam0 ='../bag/V1_02_medium/mav0/cam0/';
+    datacsv_cam0 = csv2cell([file_cam0,'data.csv']);
+end
 
 
 
@@ -40,20 +43,22 @@ win_size = [15, 15];
 i=700;
 
 img0=imread([file_cam0,'data/',datacsv_cam0{i,2}]);
-    
+
+img0=cv_equalizeHist(img0);
+  
 mask=getMask(img0);
 
-imgpyr0=buildOpticalFlowPyramid(img0,win_size,pyr_levels);
+imgpyr0=cv_buildOpticalFlowPyramid(img0,win_size,pyr_levels);
 
 
 pts0=[];
 ids0=[];
 
-if (exist('pts0_ids0.mat')==2)
-    load('pts0_ids0.mat');
+if (exist(['pts0_ids0_',num2str(i),'.mat'])==2)
+    load(['pts0_ids0_',num2str(i),'.mat']);
 else
     [pts0,ids0]=perform_detection_monocular(imgpyr0,mask,pts0,ids0);
-    save('pts0_ids0.mat','pts0','ids0');
+    save(['pts0_ids0_',num2str(i),'.mat'],'pts0','ids0');
 end
 
 % figure 
@@ -61,8 +66,9 @@ end
 % plot(pts0(:,1), pts0(:,2), 'r.', 'MarkerSize', 7); 
 
 
-img1=imread([file_cam0,'data/',datacsv_cam0{i+0,2}]);
-imgpyr1=buildOpticalFlowPyramid(img1,win_size,pyr_levels);
+img1=imread([file_cam0,'data/',datacsv_cam0{i+9,2}]);
+img1=cv_equalizeHist(img1);
+imgpyr1=cv_buildOpticalFlowPyramid(img1,win_size,pyr_levels);
 
 
     %cv::TermCriteria term_crit = cv::TermCriteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 30, 0.01);
@@ -76,7 +82,7 @@ imgpyr1=buildOpticalFlowPyramid(img1,win_size,pyr_levels);
 
 
 % 调用Lucas-Kanade光流算法
-window_size = 5; % 设置窗口大小
+window_size = 20; % 设置窗口大小
 [u, v] = lucas_kanade_optical_flow_points(imgpyr0{1}, imgpyr1{1}, pts0, window_size);
 
 colors = jet(6);
