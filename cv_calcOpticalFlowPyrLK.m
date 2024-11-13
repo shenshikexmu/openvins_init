@@ -28,10 +28,25 @@ for n=pyr_levels:-1:1
     
     [pts1] = iterOpticalflow(I0_now,I1_now,pts0_now,pts1_now,win_size,eps,max_iters);
     
+    pts1=pts1*scale;
+    
     a=10;
     
 end
 
+
+for i=1:size(pts0,1)
+    
+    figure
+    imshow([imgpyr0{1},imgpyr1{1}]);
+    hold on;
+    plot(pts0(i,1),pts0(i,2),'r.', 'MarkerSize', 7,pts1(i,1)+size(imgpyr0{1},2),pts1(i,2),'r.', 'MarkerSize', 7);
+    
+    
+    a=10;
+    
+    
+end
 
 a=10;
                                

@@ -45,9 +45,9 @@ for i= 1:size(pts0,1)
     win1 = I1(top:bottom,left:right);
     ix = Ix(top:bottom,left:right);
     iy = Iy(top:bottom,left:right);
-    if i==84
-        a=10;
-    end
+%    if i==84
+%        a=10;
+%    end
     A = [X2(pts0_tmp(2),pts0_tmp(1)) XY(pts0_tmp(2),pts0_tmp(1)); XY(pts0_tmp(2),pts0_tmp(1)) Y2(pts0_tmp(2),pts0_tmp(1))];
 %         lambda = eig(A);
     r = rank(A);
@@ -58,13 +58,16 @@ for i= 1:size(pts0,1)
     end
     u=pts1(i,1)-pts0_tmp(1);
     v=pts1(i,2)-pts0_tmp(2);
+    %mean_win1=mean(mean(win1));
     for iter = 1:max_iters
         [x,y] = meshgrid(1:size(I1,2), 1:size(I1,1));
         xp = x+u;
         yp = y+v;
 
         win2 = interp2(x,y,I2,xp(top:bottom,left:right),yp(top:bottom,left:right));
+        %mean_win2=mean(mean(win2));
         
+        %it = win2-win1-mean_win2+mean_win1;
         it = win2-win1;
         ixt = it.*ix;
         iyt = it.*iy;
@@ -76,51 +79,53 @@ for i= 1:size(pts0,1)
             break;
         end
     end
-    i
+   
     pts1(i,1:2)=pts0(i,1:2)+[u,v];
-   [u,v]
-   
-   figure;
-   subplot(1,2,1)
-   imshow([I1]);
-   hold on;
-   plot(pts0(i,1),pts0(i,2),'r.');
-   subplot(1,2,2)
-   imshow([I2]);
-   hold on;
-   plot(pts1(i,1),pts1(i,2),'r.');
-   
-   
-    for m=1:31
-       for n=1:31
-           
-           [x,y] = meshgrid(1:size(I1,2), 1:size(I1,1));
-            xp = x+m-16;
-            yp = y+n-16;
 
-            win2 = interp2(x,y,I2,xp(top:bottom,left:right),yp(top:bottom,left:right));
-       
-            it = win2-win1;
-            it_all=it.*it;
-            
-            AAA(m,n)=sum(sum(it_all));
-           
-           
-       end
-   end
-   
-   [minValue, linearIdx] = min(AAA(:));
-   [numRows, numCols] = size(AAA);
-   rowIdx = mod(linearIdx - 1, numRows) + 1;
-   colIdx = ceil(linearIdx / numRows);
-   [rowIdx-16,colIdx-16]
-   uv=pts0(i,1:2)+[rowIdx-16,colIdx-16];
-   hold on;
-   plot(uv(1),uv(2),'g.');
-   
-
-    
-    a=10;
+%   figure;
+%   
+%   subplot(1,2,1)
+%   imshow([I1]);
+%   hold on;
+%   plot(pts0(i,1),pts0(i,2),'r.');
+%   title([num2str(i),'[',num2str(u),',',num2str(v),']']);
+%   
+%   subplot(1,2,2)
+%   imshow([I2]);
+%   hold on;
+%   plot(pts1(i,1),pts1(i,2),'r.');
+%   
+%    halfwin=15;
+%    for m=1:(halfwin*2-1)
+%       for n=1:(halfwin*2-1)
+%           
+%           [x,y] = meshgrid(1:size(I1,2), 1:size(I1,1));
+%            xp = x+m-halfwin;
+%            yp = y+n-halfwin;
+%
+%            win2 = interp2(x,y,I2,xp(top:bottom,left:right),yp(top:bottom,left:right));
+%       
+%            it = win2-win1;
+%            it_all=it.*it;
+%            
+%            AAA(m,n)=sum(sum(it_all));
+%           
+%           
+%       end
+%   end
+%   
+%   [minValue, linearIdx] = min(AAA(:));
+%   [numRows, numCols] = size(AAA);
+%   rowIdx = mod(linearIdx - 1, numRows) + 1;
+%   colIdx = ceil(linearIdx / numRows);
+%   uv=pts0(i,1:2)+[rowIdx-halfwin,colIdx-halfwin];
+%   hold on;
+%   plot(uv(1),uv(2),'g.');
+%   title(['[',num2str(rowIdx-halfwin),',',num2str(colIdx-halfwin),']']);
+%   
+%
+%    
+%    a=10;
    
     
     
