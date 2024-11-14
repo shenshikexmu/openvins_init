@@ -93,7 +93,7 @@ for i=1:size(pts0_ext,1)
     x_grid=pts0_ext(i,1)/min_px_dist;
     y_grid=pts0_ext(i,2)/min_px_dist;
     
-    if (x_grid<0.5 || x_grid> size_close(2) || y_grid <0.5 || y_grid >size_close(1))
+    if (x_grid<0.7 || x_grid> size_close(2) || y_grid <0.7 || y_grid >size_close(1))
         continue;
     end
 %    i

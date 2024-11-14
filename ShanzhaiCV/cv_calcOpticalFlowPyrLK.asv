@@ -68,24 +68,26 @@ for i=1:size(pts0,1)
     win2 = interp2(x,y,I1,xp(top:bottom,left:right),yp(top:bottom,left:right));
 
     it = win2-win1;
-    err(i,1)=mean(mean(abs(it(~isnan(it)))));
+    err(i,1)=sum(sum(abs(it(~isnan(it)))));
     
-    if err(i,1)<0.2
-        
-        status(i,1)=1;
-    end
-
+%     if err(i,1)<9000
+%         
+%         status(i,1)=1;
+%     end
+    
+    
+  
    
-%    figure
-%    imshow([imgpyr0{1},imgpyr1{1}]);
-%    hold on;
-%    plot(pts0(i,1),pts0(i,2),'r*',pts1(i,1)+size(imgpyr0{1},2),pts1(i,2),'g*');
-%    hold on;
-%    plot([pts0(i,1),pts1(i,1)+size(imgpyr0{1},2)],[pts0(i,2),pts1(i,2)],'b-');
-%    hold off;
-%    
-%    
-%    a=10;
+   figure
+   imshow([imgpyr0{1},imgpyr1{1}]);
+   hold on;
+   plot(pts0(i,1),pts0(i,2),'r*',pts1(i,1)+size(imgpyr0{1},2),pts1(i,2),'g*');
+   hold on;
+   plot([pts0(i,1),pts1(i,1)+size(imgpyr0{1},2)],[pts0(i,2),pts1(i,2)],'b-');
+   hold off;
+   
+   
+   a=10;
     
     
 end
