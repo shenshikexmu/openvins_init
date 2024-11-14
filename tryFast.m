@@ -1,10 +1,16 @@
-%clear all
+clear all
 clc
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
-pkg load image
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-image_org=imread('1403715550312143104.png');
+addpath('ShanzhaiCV');
+
+global matlab_or_octave=0 
+
+if (matlab_or_octave==0)           %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
+    pkg load image
+end
+
+
+image_org=imread('./data/1403715550312143104.png');
 
 [rows, cols] = size(image_org);
 
