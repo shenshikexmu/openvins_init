@@ -1,9 +1,9 @@
-function [pts1, status, err] = cv_calcOpticalFlowPyrLK(imgpyr0, imgpyr1, pts0, pts1,win_size, pyr_levels, criteria, cv_OPTFLOW_USE_INITIAL_FLOW)
+function [pts1, status, err] = cv_calcOpticalFlowPyrLK(imgpyr0, imgpyr1, pts0, pts1,win_size, pyr_levels, criteria, flags)
 
 max_iters=criteria.max_iters;
 eps=criteria.epsilon;
 
-if (cv_OPTFLOW_USE_INITIAL_FLOW==1)
+if (flags==1)
     pts1=pts1;
 else
     pts1=pts0;
