@@ -1,12 +1,12 @@
 clear all
 clc
 addpath('ShanzhaiCV');
+addpath('YAMLMatlab');
 
 
 
-
-global matlab_or_octave=0 
-global min_px_dist=10  grid_x=5 grid_y=5 num_features threshold currid=0 
+global matlab_or_octave
+matlab_or_octave=1; 
 
     
 
@@ -20,9 +20,17 @@ else                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
     datacsv_cam0 = csv2cell([file_cam0,'data.csv']);
 end
 
-cam0Para = readYaml([file_cam0,'sensor.yaml']);
+cam0Para = ReadYaml([file_cam0,'sensor.yaml']);
 
 
+global min_px_dist  grid_x grid_y num_features threshold currid
+
+
+
+min_px_dist=10;
+grid_x=5; 
+grid_y=5;
+currid=0;
 
 pyr_levels=5;
 
@@ -69,16 +77,47 @@ else
 end
 
 
+camK=[cam0Para.intrinsics{1},0,cam0Para.intrinsics{3};...
+      0,cam0Para.intrinsics{2},cam0Para.intrinsics{4};...
+      0,0,1];
+
+
+
+camD=[cam0Para.distortion_coefficients{1},cam0Para.distortion_coefficients{2},cam0Para.distortion_coefficients{3},cam0Para.distortion_coefficients{4}];
+
+
 
 %mask=cv_findFundamentalMat(points1, points2, method, ransacReprojThreshold ,confidence )
 
 
 
 
+%%
+AAA=zeros(752*480,6);
+
+n=0;
+
+for u=1:752
+
+    for v=1:480
+
+        n=n+1;
+
+        uv_dist=[u,v];
+
+        uv_norm=cv_undistortPoints(uv_dist, camK,camD);
+
+
+        uv_dist2 = distort_f(uv_norm, camK,camD);
+
+
+        AAA(n,:)=[uv_dist,uv_dist2,uv_dist2-uv_dist];
 
 
 
+    end
 
+end
 
 
 
