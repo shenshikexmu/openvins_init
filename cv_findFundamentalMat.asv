@@ -1,4 +1,4 @@
-function [mask]=cv_findFundamentalMat(points1, points2, method, ransacReprojThreshold ,confidence )
+function [mask,SS]=cv_findFundamentalMat(points1, points2, method, ransacReprojThreshold ,confidence )
     
 n=size(points1,1);
 mask=zeros(n,1);
@@ -9,7 +9,7 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
     n_linear=min(12,max(8,floor(n/2)));            %需要解方程的行数
 
-    k=ceil(log(1-confidence)/log(1-0.8^n_linear));   %需要循环的次数
+    k=ceil(log(1-confidence)/log(1-0.9^n_linear))   %需要循环的次数
 
 
 %    min_SS=inf;
@@ -111,10 +111,10 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
     [sortSS,sort_idx]=sort(SS);
 
-    %m=ceil(n*0.8/12);
+    m=ceil(n*0.8/8);
 
-    P1_temp= points1(sort_idx(1:floor(n/2)),1:2);
-    P2_temp= points2(sort_idx(1:floor(n/2)),1:2);
+    P1_temp= points1(sort_idx(1:n/2),1:2);
+    P2_temp= points2(sort_idx(1:n/2),1:2);
     [R,T]=Initial_R_T(P1_temp,P2_temp);
 
     EEE=V_2_Skew(T)*R;
@@ -138,21 +138,16 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
     end
 
+    [sortSS,sort_idx]=sort(SS);
+
+    for s=n:-1:n-3
 
 
 
-%     [sortSS,sort_idx]=sort(SS);
-% 
-%     for s=n:-1:n-4
-% 
-%         mask(sort_idx(s,1),1)=0;
-% 
-%         SS(sort_idx(s,1),1)=0;
-% 
-% 
-%     end
-% 
-% 
+
+    end
+
+
 
 
     
@@ -254,7 +249,7 @@ T=[];
 [s21,s22]=Location_scale(P1,P2,R2,T2);
 [s31,s32]=Location_scale(P1,P2,R3,T3);
 [s41,s42]=Location_scale(P1,P2,R4,T4);
-%SS=[s11,s12;s21,s22;s31,s32;s41,s42];
+SS=[s11,s12;s21,s22;s31,s32;s41,s42];
 if s11>0 && s12>0
      R=R1;
      T=T1;

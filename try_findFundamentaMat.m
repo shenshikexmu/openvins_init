@@ -45,8 +45,15 @@ threshold=fast_threshold;
 
 win_size = [15, 15];
 
+camK=[cam0Para.intrinsics{1},0,cam0Para.intrinsics{3};...
+      0,cam0Para.intrinsics{2},cam0Para.intrinsics{4};...
+      0,0,1];
 
-i=539;
+camD=[cam0Para.distortion_coefficients{1},cam0Para.distortion_coefficients{2},cam0Para.distortion_coefficients{3},cam0Para.distortion_coefficients{4}];
+
+
+
+i=439;
 
 img0=imread([file_cam0,'data/',datacsv_cam0{i,2}]);
 img0=cv_equalizeHist(img0);
@@ -77,63 +84,41 @@ else
 end
 
 
-camK=[cam0Para.intrinsics{1},0,cam0Para.intrinsics{3};...
-      0,cam0Para.intrinsics{2},cam0Para.intrinsics{4};...
-      0,0,1];
+pts0=refine(pts0,status);
+
+ids0=refine(ids0,status);
+
+err=refine(err,status);
+
+pts1=refine(pts1,status);
 
 
+pts0_n=zeros(size(pts0,1),2);
+pts1_n=zeros(size(pts1,1),2);
 
-camD=[cam0Para.distortion_coefficients{1},cam0Para.distortion_coefficients{2},cam0Para.distortion_coefficients{3},cam0Para.distortion_coefficients{4}];
+for i=1:size(pts0,1)
 
+    pts0_n(i,:)=undistort_cv(pts0(i,1:2), camK,camD);
 
+    pts1_n(i,:)=undistort_cv(pts1(i,1:2), camK,camD);
 
-%mask=cv_findFundamentalMat(points1, points2, method, ransacReprojThreshold ,confidence )
-
-
-
-
-%%
-AAA=zeros(752*480,6);
-
-n=0;
-
-for u=1:752
-
-    for v=1:480
-
-        n=n+1;
-
-        uv_dist=[u,v];
-
-        uv_norm=cv_undistortPoints(uv_dist, camK,camD);
-
-
-        uv_dist2 = distort_f(uv_norm, camK,camD);
-
-
-        AAA(n,:)=[uv_dist,uv_dist2,uv_dist2-uv_dist];
-
-
-
-    end
 
 end
 
-
-
-
-
-
-
-
-
-
-
-
+max_focallength=max(camK(1,1),camK(2,2));
 
 
 
 %%
+
+
+[mask]=cv_findFundamentalMat(pts0_n, pts1_n, 'cv_FM_RANSAC', 1/max_focallength ,0.999);
+
+
+sum(mask)
+
+
+
 figure;
 imshow([imgpyr0{1},imgpyr1{1};imgpyr1{1},imgpyr1{1}]);
 hold on;
@@ -146,7 +131,7 @@ colors = jet(6);
 n=0;
 for i=1:size(pts0,1)
     
-    if status(i,1)==1
+    if mask(i,1)==1
         n=n+1;
         hold on;
         plot(pts0(i,1),pts0(i,2),'r*');
