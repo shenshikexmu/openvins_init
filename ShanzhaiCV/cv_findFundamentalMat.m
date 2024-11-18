@@ -9,7 +9,7 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
     n_linear=min(8,max(8,floor(n/2)));            %需要解方程的行数
 
-    k=ceil(log(1-confidence)/log(1-0.8^n_linear))   %需要循环的次数
+    k=ceil(log(1-confidence)/log(1-0.8^n_linear));   %需要循环的次数
 
 
 %    min_SS=inf;
@@ -96,36 +96,6 @@ if  strcmp(method , 'cv_FM_RANSAC')
          SS(s,1)=computeError(points1(s,1:2),points2(s,1:2),EEE);
 
 
-%         if (abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]')<ransacReprojThreshold)
-% 
-%             mask(s,1)=1;
-% 
-%         else
-% 
-%             SS(s,1)=0;
-% 
-%         end
-
-    end
-
-
-    [sortSS,sort_idx]=sort(SS);
-
-    %m=ceil(n*0.8/12);
-
-    P1_temp= points1(sort_idx(1:floor(n/2)),1:2);
-    P2_temp= points2(sort_idx(1:floor(n/2)),1:2);
-    [R,T]=Initial_R_T(P1_temp,P2_temp);
-
-    EEE=V_2_Skew(T)*R;
-
-
-
-    for s=1:size(points1,1)
-
-         SS(s,1)=computeError(points1(s,1:2),points2(s,1:2),EEE);
-
-
         if (computeError(points1(s,1:2),points2(s,1:2),EEE)<ransacReprojThreshold)
 
             mask(s,1)=1;
@@ -137,6 +107,36 @@ if  strcmp(method , 'cv_FM_RANSAC')
         end
 
     end
+
+
+%     [sortSS,sort_idx]=sort(SS);
+% 
+%     %m=ceil(n*0.8/12);
+% 
+%     P1_temp= points1(sort_idx(1:floor(n/2)),1:2);
+%     P2_temp= points2(sort_idx(1:floor(n/2)),1:2);
+%     [R,T]=Initial_R_T(P1_temp,P2_temp);
+% 
+%     EEE=V_2_Skew(T)*R;
+% 
+% 
+% 
+%     for s=1:size(points1,1)
+% 
+%          SS(s,1)=computeError(points1(s,1:2),points2(s,1:2),EEE);
+% 
+% 
+%         if (computeError(points1(s,1:2),points2(s,1:2),EEE)<ransacReprojThreshold)
+% 
+%             mask(s,1)=1;
+% 
+%         else
+% 
+%             SS(s,1)=0;
+% 
+%         end
+% 
+%     end
 
 
 
