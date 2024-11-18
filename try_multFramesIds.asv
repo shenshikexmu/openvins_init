@@ -9,9 +9,9 @@ global matlab_or_octave
 matlab_or_octave=1; 
 
     
-file_cam0='../bag/V1_02_medium/mav0/cam0/';
 
-if  (matlab_or_octave ==1)   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  matlab   
+if  (matlab_or_octave ==1)   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  matlab
+    
     datacsv_cam0=readcell([file_cam0,'data.csv']);
     cam0Para = ReadYaml_matlab([file_cam0,'sensor.yaml']);            % cell2mat
     cam0Para.intrinsics=cell2mat(cam0Para.intrinsics);
@@ -19,6 +19,7 @@ if  (matlab_or_octave ==1)   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  matlab
 else                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
     pkg load io
     pkg load image
+    file_cam0 ='../bag/V1_02_medium/mav0/cam0/';
     datacsv_cam0 = csv2cell([file_cam0,'data.csv']);
     cam0Para = readYaml_octave([file_cam0,'sensor.yaml']);
 end
@@ -153,7 +154,7 @@ for n=1:10
     
     title(['Optical Flow (Lucas-Kanade) image',num2str(1),' to image',num2str(n)]);
     
-    hold off;
+
     
     a=10;
 

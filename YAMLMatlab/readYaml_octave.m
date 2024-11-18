@@ -1,4 +1,4 @@
-function results = readYaml(filePath)
+function results = readYaml_octave(filePath)
 % Lloyd Russell 2017
 % Simple little function to read simple little YAML format parameter files
 % from  https://github.com/llerussell/ReadYAML
