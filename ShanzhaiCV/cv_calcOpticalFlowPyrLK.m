@@ -190,7 +190,7 @@ for i= 1:size(pts0,1)
         end
     end
    
-    pts1(i,1:2)=pts0_tmp+[u,v];
+    pts1(i,1:2)=pts0(i,1:2)+[u,v];
 
 %   figure;
 %   

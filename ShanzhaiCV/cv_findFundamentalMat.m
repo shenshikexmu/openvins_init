@@ -1,4 +1,4 @@
-function [mask]=cv_findFundamentalMat(points1, points2, method, ransacReprojThreshold ,confidence )
+function [mask,R,T]=cv_findFundamentalMat(points1, points2, method, ransacReprojThreshold ,confidence )
     
 n=size(points1,1);
 mask=zeros(n,1);
@@ -7,9 +7,9 @@ mask=zeros(n,1);
 if  strcmp(method , 'cv_FM_RANSAC')
 
 
-    n_linear=min(12,max(8,floor(n/2)));            %需要解方程的行数
+    n_linear=min(8,max(8,floor(n/2)));            %需要解方程的行数
 
-    k=ceil(log(1-confidence)/log(1-0.8^n_linear));   %需要循环的次数
+    k=ceil(log(1-confidence)/log(1-0.8^n_linear))   %需要循环的次数
 
 
 %    min_SS=inf;
@@ -29,7 +29,7 @@ if  strcmp(method , 'cv_FM_RANSAC')
             T=T/norm(T);
             EEE=V_2_Skew(T)*R;
             for s=1:size(points1,1)
-                SS(s,1)=abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]');
+                SS(s,1)=computeError(points1(s,1:2),points2(s,1:2),EEE);%abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]');
     
             end
     
@@ -93,7 +93,7 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
     for s=1:size(points1,1)
 
-         SS(s,1)=abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]');
+         SS(s,1)=computeError(points1(s,1:2),points2(s,1:2),EEE);
 
 
 %         if (abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]')<ransacReprojThreshold)
@@ -123,10 +123,10 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
     for s=1:size(points1,1)
 
-         SS(s,1)=abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]');
+         SS(s,1)=computeError(points1(s,1:2),points2(s,1:2),EEE);
 
 
-        if (abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]')<ransacReprojThreshold)
+        if (computeError(points1(s,1:2),points2(s,1:2),EEE)<ransacReprojThreshold)
 
             mask(s,1)=1;
 
@@ -166,7 +166,33 @@ end
 
 
 
+function  err=computeError(p1,p2,E)
+    
+    
+    %E=V_2_Skew(T)*R;
+    
 
+    v1=[p1(1);p1(2);1];
+    v2=[p2(1);p2(2);1];
+    
+    d1=v1'*E*v2;
+    
+    v1_=E*v2;
+    
+    v2_=E'*v1;
+    
+    d2=d1;
+    
+    s1=1/(v1_(1)^2+v1_(2)^2);
+    
+    s2=1/(v2_(1)^2+v2_(2)^2);
+    
+    
+    err=max(d1*d1*s1,d2*d2*s2);
+    
+    err=sqrt(err);
+   
+end
 
 
 

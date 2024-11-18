@@ -1,4 +1,4 @@
-clear all
+%clearclear all
 clc
 addpath('ShanzhaiCV');
 addpath('YAMLMatlab');
@@ -6,13 +6,14 @@ addpath('YAMLMatlab');
 
 
 global matlab_or_octave
-matlab_or_octave=1; 
+matlab_or_octave=0; 
 
     
 
 if  (matlab_or_octave ==1)   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  matlab
     file_cam0='../bag/V1_02_medium/mav0/cam0/';
     datacsv_cam0=readcell([file_cam0,'data.csv']);
+    cam0Para = ReadYaml([file_cam0,'sensor.yaml']);            % cell2mat
 else                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
     pkg load io
     pkg load image
@@ -20,8 +21,7 @@ else                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
     datacsv_cam0 = csv2cell([file_cam0,'data.csv']);
 end
 
-cam0Para = ReadYaml([file_cam0,'sensor.yaml']);
-
+cam0Para = readYaml([file_cam0,'sensor.yaml']);
 
 global min_px_dist  grid_x grid_y num_features threshold currid
 
@@ -45,15 +45,15 @@ threshold=fast_threshold;
 
 win_size = [15, 15];
 
-camK=[cam0Para.intrinsics{1},0,cam0Para.intrinsics{3};...
-      0,cam0Para.intrinsics{2},cam0Para.intrinsics{4};...
+camK=[cam0Para.intrinsics(1),0,cam0Para.intrinsics(3);...
+      0,cam0Para.intrinsics(2),cam0Para.intrinsics(4);...
       0,0,1];
 
-camD=[cam0Para.distortion_coefficients{1},cam0Para.distortion_coefficients{2},cam0Para.distortion_coefficients{3},cam0Para.distortion_coefficients{4}];
+camD=[cam0Para.distortion_coefficients(1),cam0Para.distortion_coefficients(2),cam0Para.distortion_coefficients(3),cam0Para.distortion_coefficients(4)];
 
 
 
-i=439;
+i=839;
 
 img0=imread([file_cam0,'data/',datacsv_cam0{i,2}]);
 img0=cv_equalizeHist(img0);
@@ -98,21 +98,19 @@ pts1_n=zeros(size(pts1,1),2);
 
 for i=1:size(pts0,1)
 
-    pts0_n(i,:)=undistort_cv(pts0(i,1:2), camK,camD);
+    pts0_n(i,:)=undistort_cv(pts0(i,1:2)-[1,1], camK,camD);
 
-    pts1_n(i,:)=undistort_cv(pts1(i,1:2), camK,camD);
-
+    pts1_n(i,:)=undistort_cv(pts1(i,1:2)-[1,1], camK,camD);
 
 end
 
 max_focallength=max(camK(1,1),camK(2,2));
 
 
-
 %%
 
 
-[mask]=cv_findFundamentalMat(pts0_n, pts1_n, 'cv_FM_RANSAC', 1/max_focallength ,0.999);
+[mask,R,T]=cv_findFundamentalMat(pts0_n, pts1_n, 'cv_FM_RANSAC', 2/max_focallength ,0.99);
 
 
 sum(mask)
