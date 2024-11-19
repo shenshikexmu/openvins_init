@@ -6,7 +6,7 @@ addpath('YAMLMatlab');
 
 
 global matlab_or_octave
-matlab_or_octave=1; 
+matlab_or_octave=0; 
 
     
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
@@ -56,7 +56,7 @@ max_focallength=max(camK(1,1),camK(2,2));
 
 
 
-i=989;
+i=189;
 
 
 for n=1:10
