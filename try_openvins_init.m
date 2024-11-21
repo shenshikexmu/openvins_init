@@ -59,25 +59,26 @@ max_focallength=max(camK(1,1),camK(2,2));
 i=289;
 
 
-for n=1:10
+
+m=10;
+for n=1:m
     
     img{n}=imread([file_cam0,'data/',datacsv_cam0{i+n-1,2}]);
     img{n}=cv_equalizeHist(img{n});
     imgpyr{n}=cv_buildOpticalFlowPyramid(img{n},win_size,pyr_levels);
+    
+    if (exist(['pts_ids_',num2str(i),'_',num2str(m),'.mat'])==2)   
+        if n==m           
+            load(['pts_ids_',num2str(i),'_',num2str(m),'.mat']);
+        end 
+        continue;   
+    end
       
     if n==1
-        
         mask=getMask(img{n});
-
         pts{n}=[];
         ids{n}=[];
-        
-        if (exist(['pts_ids_',num2str(i),'_',num2str(n),'.mat'])==2)
-            load(['pts_ids_',num2str(i),'_',num2str(n),'.mat']);          
-        else
-            [pts{n},ids{n}]=perform_detection_monocular(imgpyr{n},mask,pts{n},ids{n});
-            save(['pts_ids_',num2str(i),'_',num2str(n),'.mat'],'pts','ids');
-        end
+        [pts{n},ids{n}]=perform_detection_monocular(imgpyr{n},mask,pts{n},ids{n});
         continue;   
     end
     
@@ -85,35 +86,39 @@ for n=1:10
     criteria.epsilon=0.01;
     cv_OPTFLOW_USE_INITIAL_FLOW=1;
     
-    if (exist(['pts_ids_',num2str(i),'_',num2str(n),'.mat'])==2)   
-         load(['pts_ids_',num2str(i),'_',num2str(n),'.mat']);   
-    else  
-    
-        pts{n}=pts{n-1};
-        [pts{n}, status, err] = cv_calcOpticalFlowPyrLK(imgpyr{n-1}, imgpyr{n}, pts{n-1}, pts{n}, win_size, pyr_levels, criteria, cv_OPTFLOW_USE_INITIAL_FLOW);
+    pts{n}=pts{n-1};
+    [pts{n}, status, err] = cv_calcOpticalFlowPyrLK(imgpyr{n-1}, imgpyr{n}, pts{n-1}, pts{n}, win_size, pyr_levels, criteria, cv_OPTFLOW_USE_INITIAL_FLOW);
 
-        pts{n-1}=refine(pts{n-1},status);
-        ids{n-1}=refine(ids{n-1},status);
-        pts{n}=refine(pts{n},status);
+    pts{n-1}=refine(pts{n-1},status);
+    ids{n-1}=refine(ids{n-1},status);
+    pts{n}=refine(pts{n},status);
 
-        pts_n{n-1}=zeros(size(pts{n-1},1),2);
-        pts_n{n}=zeros(size(pts{n},1),2);
+    pts_n{n-1}=zeros(size(pts{n-1},1),2);
+    pts_n{n}=zeros(size(pts{n},1),2);
 
-        for p=1:size(pts{n-1},1)
-            pts_n{n-1}(p,:)=undistort_cv(pts{n-1}(p,1:2)-[1,1], camK,camD);
-            pts_n{n}(p,:)=undistort_cv(pts{n}(p,1:2)-[1,1], camK,camD);
-        end
-
-        [mask]=cv_findFundamentalMat(pts_n{n-1}, pts_n{n}, 'cv_FM_RANSAC', 1/max_focallength ,0.999);
-
-        pts{n-1}=refine(pts{n-1},mask);
-        ids{n-1}=refine(ids{n-1},mask);
-        pts{n}=refine(pts{n},mask);
-        ids{n}=ids{n-1};
-        
-        save(['pts_ids_',num2str(i),'_',num2str(n),'.mat'],'pts','ids');
-    
+    for p=1:size(pts{n-1},1)
+        pts_n{n-1}(p,:)=undistort_cv(pts{n-1}(p,1:2)-[1,1], camK,camD);
+        pts_n{n}(p,:)=undistort_cv(pts{n}(p,1:2)-[1,1], camK,camD);
     end
+
+    [mask]=cv_findFundamentalMat(pts_n{n-1}, pts_n{n}, 'cv_FM_RANSAC', 1/max_focallength ,0.999);
+
+    pts{n-1}=refine(pts{n-1},mask);
+    ids{n-1}=refine(ids{n-1},mask);
+    pts{n}=refine(pts{n},mask);
+    ids{n}=ids{n-1};
+    
+    if n==m
+        save(['pts_ids_',num2str(i),'_',num2str(n),'.mat'],'pts','ids');
+    end
+    
+end
+
+
+
+
+
+for n=1:10
       
     colors = jet(6);
     
