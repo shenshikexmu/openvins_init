@@ -1,7 +1,7 @@
 clear all
 clc
-addpath('ShanzhaiCV');
-addpath('YAMLMatlab');
+addpath('shanzhaiCV');
+addpath('yamlMatlab');
 addpath('repropagate');
 addpath('quaternion');
 

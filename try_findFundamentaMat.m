@@ -1,27 +1,30 @@
 %clearclear all
 clc
-addpath('ShanzhaiCV');
-addpath('YAMLMatlab');
+addpath('shanzhaiCV');
+addpath('yamlMatlab');
 
 
 
 global matlab_or_octave
-matlab_or_octave=0; 
+matlab_or_octave=1; 
 
     
 
 if  (matlab_or_octave ==1)   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  matlab
     file_cam0='../bag/V1_02_medium/mav0/cam0/';
     datacsv_cam0=readcell([file_cam0,'data.csv']);
-    cam0Para = ReadYaml([file_cam0,'sensor.yaml']);            % cell2mat
+    cam0Para = ReadYaml_matlab([file_cam0,'sensor.yaml']);            % cell2mat
+    cam0Para.intrinsics=cell2mat(cam0Para.intrinsics);
+    cam0Para.distortion_coefficients=cell2mat(cam0Para.distortion_coefficients);
 else                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
     pkg load io
     pkg load image
     file_cam0 ='../bag/V1_02_medium/mav0/cam0/';
     datacsv_cam0 = csv2cell([file_cam0,'data.csv']);
+    cam0Para = readYaml_octave([file_cam0,'sensor.yaml']);
 end
 
-cam0Para = readYaml([file_cam0,'sensor.yaml']);
+
 
 global min_px_dist  grid_x grid_y num_features threshold currid
 

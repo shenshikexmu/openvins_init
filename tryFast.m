@@ -3,7 +3,9 @@ clc
 
 addpath('ShanzhaiCV');
 
-global matlab_or_octave=0 
+global matlab_or_octave 
+
+matlab_or_octave=1;
 
 if (matlab_or_octave==0)           %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
     pkg load image
