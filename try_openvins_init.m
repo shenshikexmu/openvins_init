@@ -2,17 +2,21 @@ clear all
 clc
 addpath('ShanzhaiCV');
 addpath('YAMLMatlab');
-
-
+addpath('repropagate');
+addpath('quaternion');
 
 global matlab_or_octave
-matlab_or_octave=0; 
+matlab_or_octave=1; 
 
     
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
+file_imu0='../bag/V1_02_medium/mav0/imu0/';
 
 if  (matlab_or_octave ==1)   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  matlab   
     datacsv_cam0=readcell([file_cam0,'data.csv']);
+    datacsv_imu0=readcell([file_imu0,'data.csv']);
+    imuData=cell2mat(datacsv_imu0(2:end,:));
+    imuData(:,1)=imuData(:,1)*10e-10;
     cam0Para = ReadYaml_matlab([file_cam0,'sensor.yaml']);            % cell2mat
     cam0Para.intrinsics=cell2mat(cam0Para.intrinsics);
     cam0Para.distortion_coefficients=cell2mat(cam0Para.distortion_coefficients);
@@ -55,8 +59,18 @@ camD=[cam0Para.distortion_coefficients(1),cam0Para.distortion_coefficients(2),ca
 max_focallength=max(camK(1,1),camK(2,2));
 
 
+global ACC_N GYR_N ACC_W GYR_W 
 
-i=289;
+
+ACC_N=0.5;                     %bao
+GYR_N=0.1;
+ACC_W=0.001;
+GYR_W=0.00001;
+
+
+
+
+i=589;
 
 
 
@@ -114,11 +128,40 @@ for n=1:m
     
 end
 
+Ba=[0;0;0];
+Bg=[0;0;0];
+
+for n=1:m
+
+    camTimeStamp(n,1)=datacsv_cam0{i+n-1,1}*10e-10;
+
+    if n>1
+
+        IMU_data_fragment{n-1}=get_Imu_Fragment_tc1_tc2(imuData,camTimeStamp(n-1),camTimeStamp(n));
+
+        imuPropagate{n-1}=repropagate_VINS_Mono(IMU_data_fragment{n-1},Ba,Bg);
+
+    end
+
+end
+
+
+    IMU_data_fragment12=get_Imu_Fragment_tc1_tc2(IMU_data,tc1,tc2);
+    IMU_data_fragment23=get_Imu_Fragment_tc1_tc2(IMU_data,tc2,tc3);
+    IMU_data_fragment34=get_Imu_Fragment_tc1_tc2(IMU_data,tc3,tc4);
+    IMU_data_fragment45=get_Imu_Fragment_tc1_tc2(IMU_data,tc4,tc5);
+    IMU_data_fragment56=get_Imu_Fragment_tc1_tc2(IMU_data,tc5,tc6);
+
+    imuPropagate12=repropagate_VINS_Mono(IMU_data_fragment12,controller_Ba,controller_Bg);
+    imuPropagate23=repropagate_VINS_Mono(IMU_data_fragment23,controller_Ba,controller_Bg);
+    imuPropagate34=repropagate_VINS_Mono(IMU_data_fragment34,controller_Ba,controller_Bg);
+    imuPropagate45=repropagate_VINS_Mono(IMU_data_fragment45,controller_Ba,controller_Bg);
+    imuPropagate56=repropagate_VINS_Mono(IMU_data_fragment56,controller_Ba,controller_Bg);
 
 
 
 
-for n=1:10
+for n=10:10
       
     colors = jet(6);
     
@@ -133,16 +176,16 @@ for n=1:10
                 
                 s=s+1;
                 hold on
-                plot(pts{1}(j,1),pts{1}(j,2),'r*');
+                plot(pts{1}(j,1),pts{1}(j,2),'r+');
                 
                 if mod(s,2)==0
                     hold on;
-                    plot(pts{n}(k,1),pts{n}(k,2)+size(imgpyr{1}{1},1),'g*');
+                    plot(pts{n}(k,1),pts{n}(k,2)+size(imgpyr{1}{1},1),'g+');
                     hold on;
                     plot([pts{1}(j,1),pts{n}(k,1)],[pts{1}(j,2),pts{n}(k,2)+size(imgpyr{1}{1},1)],'-', 'Color', colors(mod(s,6)+1,:));
                 else
                     hold on;
-                    plot(pts{n}(k,1)+size(imgpyr{1}{1},2),pts{n}(k,2),'g*');
+                    plot(pts{n}(k,1)+size(imgpyr{1}{1},2),pts{n}(k,2),'g+');
                     hold on;
                     plot([pts{1}(j,1),pts{n}(k,1)+size(imgpyr{1}{1},2)],[pts{1}(j,2),pts{n}(k,2)],'-', 'Color', colors(mod(s,6)+1,:));
                 end
