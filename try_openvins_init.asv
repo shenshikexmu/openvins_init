@@ -171,8 +171,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-size_ids=size(ids{10},1);
-size_frame=10;
+size_ids=10;%size(ids{10},1);
+size_frame=5;
 M0=zeros(size_ids*size_frame*2,size_ids*3+6);
 b0=zeros(size_ids*size_frame*2,1);
 
@@ -326,22 +326,30 @@ for i=1:size(x_I_k_opti,2)
 
     G_camT_k=G_p_k+G_R_k*camT;
 
+
     p1=G_camT_k-G_camR_k(:,1)*img_x_len-G_camR_k(:,2)*img_y_len;
+
     p2=G_camT_k-G_camR_k(:,1)*img_x_len+G_camR_k(:,2)*img_y_len;
+
     p3=G_camT_k+G_camR_k(:,1)*img_x_len+G_camR_k(:,2)*img_y_len;
-    p4=G_camT_k+G_camR_k(:,1)*img_x_len-G_camR_k(:,2)*img_y_len;
 
-    lines=[p1,p2,p3,p4,p1];
+    p4=G_camT_k+G_camR_k(:,1)*img_x_len+G_camR_k(:,2)*img_y_len;
 
-    plot3(lines(1,:),lines(2,:),lines(3,:),'b-');
-    hold on;
+
+
+
+
+
+
+
+
 
 end
 
 
 axis equal;
 
-hold off;
+
 
 
 

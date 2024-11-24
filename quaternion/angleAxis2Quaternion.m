@@ -3,7 +3,7 @@ function Q=angleAxis2Quaternion(angleAxis)
 
 R=angleAxisToRotationMatrix(angleAxis);
 
-Q=rotMat2qRichard_nolo(R);
+Q=rotMat2qRichard(R);
 
 
 end
