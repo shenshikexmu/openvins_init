@@ -39,7 +39,7 @@ data{10}=[0;0;1]*gravity_mag;
 % data{11}=G_p_f;
 
 
-options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',50);
+options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
 
 [a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
 
@@ -133,15 +133,15 @@ for i=2:size_frame
     angleAxis1=a1(1:3,1);
     Q1=angleAxis2Quaternion(angleAxis1)';
     V1=a1(7:9,1);
-    Ba1=a1(10:12,1);
-    Bg1=a1(13:15,1);
+    Bg1=a1(10:12,1);
+    Ba1=a1(13:15,1);
     
     P2=a2(4:6,1);
     angleAxis2=a2(1:3,1);
     Q2=angleAxis2Quaternion(angleAxis2)';
     V2=a2(7:9,1);
-    Ba2=a2(10:12,1);
-    Bg2=a2(13:15,1);
+    Bg2=a2(10:12,1);
+    Ba2=a2(13:15,1);
     
     residuals=evaluate_VINS_Mono_gravity(P1,Q1,V1,Ba1,Bg1,P2,Q2,V2,Ba2,Bg2,imuPropagate{i},gravity); 
  
@@ -151,12 +151,7 @@ end
 
 
 
-
-
 end
-
-
-
 
 
 

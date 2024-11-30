@@ -81,7 +81,7 @@ i=989;
 
 
 
-m=10;
+m=16;
 for n=1:m
     
     img{n}=imread([file_cam0,'data/',datacsv_cam0{i+n-1,2}]);
@@ -170,9 +170,8 @@ end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-size_ids=10;%size(ids{10},1);
-size_frame=5;
+size_frame=8;
+size_ids=size(ids{size_frame},1);
 M0=zeros(size_ids*size_frame*2,size_ids*3+6);
 b0=zeros(size_ids*size_frame*2,1);
 
@@ -182,15 +181,12 @@ for i=1:size_ids%size(ids{10},1)
 
         for s=1:size(ids{n},1)
 
-             if ids{n}(s)==ids{10}(i)
+             if ids{n}(s)==ids{size_frame}(i)
 
                  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
                  pts_opti{n}(i,:)=pts{n}(s,:);
                  ids_opti{n}(i,:)=ids{n}(s,:);
                  pts_n_opti{n}(i,:)=pts_n{n}(s,:);
-
-
                  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
                  Gamma=[1,0,-pts_n{n}(s,1);...
@@ -261,7 +257,6 @@ end
 
 
 
-
 for n=1:size_frame
 
     I0_Ik_q=imuPropagate_joint{n}{2};
@@ -287,75 +282,66 @@ end
 %%
 
 
-
-
 [x_I_k_opti,G_p_f_opti]=optimaization_openvins_init(x_I_k,G_p_f,imuPropagate,pts_opti,pts_n_opti,camK,camD,camR,camT,gravity_mag);
-
-
 
 
 %%
 
+G_I0_q_opti=x_I_k_opti(1:4,1);
+G_I0_v=x_I_k_opti(8:10,1);
 
-figure
+I0_G_q_opti=invQuaternion(G_I0_q_opti);
+I0_G_R_opti=quatern2rotMat(I0_G_q_opti);
 
-for i=1:size(G_p_f_opti,2)
+I0_g_opti=I0_G_R_opti*[0;0;1]*9.8;
 
-   G_p_f_k=G_p_f_opti(:,i);
-   plot3(G_p_f_k(1),G_p_f_k(2),G_p_f_k(3),'r*');
-   hold on;
+I0_v_I0=I0_G_R_opti*G_I0_v;
 
-
-end
-
-img_x_len=0.2;
-img_y_len=0.127;
 
 for i=1:size(x_I_k_opti,2)
 
+    x_I_k_opti_temp=x_I_k_opti(:,i);
 
-    x_I_k_=x_I_k_opti(:,i);
+    G_Ik_q_opti=x_I_k_opti_temp(1:4);
+    G_Ik_p_opti=x_I_k_opti_temp(5:7);
+    G_Ik_v_opti=x_I_k_opti_temp(8:10);
 
-    G_p_k=x_I_k_(5:7);
+    I0_Ik_q_opti=quaternProd(I0_G_q_opti,G_Ik_q_opti);
+    I0_Ik_p_opti=I0_G_R_opti*G_Ik_p_opti;
+    I0_Ik_v_opti=I0_G_R_opti*G_Ik_v_opti;
 
-    G_q_k=x_I_k_(1:4);
-
-    G_R_k=quatern2rotMat(G_q_k);
-
-    G_camR_k=G_R_k*camR;
-
-    G_camT_k=G_p_k+G_R_k*camT;
-
-
-    p1=G_camT_k-G_camR_k(:,1)*img_x_len-G_camR_k(:,2)*img_y_len;
-
-    p2=G_camT_k-G_camR_k(:,1)*img_x_len+G_camR_k(:,2)*img_y_len;
-
-    p3=G_camT_k+G_camR_k(:,1)*img_x_len+G_camR_k(:,2)*img_y_len;
-
-    p4=G_camT_k+G_camR_k(:,1)*img_x_len+G_camR_k(:,2)*img_y_len;
-
-
-
-
-
-
-
-
-
+    I0_x_I_k_opti(:,i)=[I0_Ik_q_opti;I0_Ik_p_opti;I0_Ik_v_opti;x_I_k_opti_temp(11:16)];
 
 end
 
+I0_p_f_opti=I0_G_R_opti*G_p_f_opti;
 
-axis equal;
+x_opti=[];
 
+for i=1:size(I0_p_f_opti,2)
 
+    x_opti(i*3-2:i*3,1)=I0_p_f_opti(:,i);
 
+end
 
+x_opti=[x_opti;I0_x_I_k_opti(8:10,1);I0_g_opti];
 
+SSS=M*x_opti;
+%%
 
+P1=I0_p_f_opti(:,1);
 
+xP=I0_x_I_k_opti(5:7,1);
 
+x=I0_x_I_k_opti(5:7,1);
+
+%%
+
+drawProjection(x_I_k,G_p_f,camR,camT);
+
+drawProjection(x_I_k_opti,G_p_f_opti,camR,camT);
+
+drawProjection(I0_x_I_k_opti,I0_p_f_opti,camR,camT);
 
 
 
@@ -365,49 +351,9 @@ axis equal;
 if 1
 
     for n=size_frame
+
+        drawOpticalFlowLK(imgpyr{1}{1},imgpyr{n}{1},pts_opti{1},pts_opti{n},1,n);
           
-        colors = jet(6);
-        
-        figure;
-        imshow([imgpyr{1}{1},imgpyr{n}{1};imgpyr{n}{1},imgpyr{n}{1}]);
-        hold on;
-        
-        s=0;
-        for k=1:size(ids_opti{1},1)   
-           
-                    
-            s=s+1;
-            hold on
-            plot(pts_opti{1}(k,1),pts_opti{1}(k,2),'r+');
-            
-            if mod(s,2)==0
-                hold on;
-                plot(pts_opti{n}(k,1),pts_opti{n}(k,2)+size(imgpyr{1}{1},1),'g+');
-                hold on;
-                plot([pts_opti{1}(k,1),pts_opti{n}(k,1)],[pts_opti{1}(k,2),pts_opti{n}(k,2)+size(imgpyr{1}{1},1)],'-', 'Color', colors(mod(s,6)+1,:));
-            else
-                hold on;
-                plot(pts_opti{n}(k,1)+size(imgpyr{1}{1},2),pts_opti{n}(k,2),'g+');
-                hold on;
-                plot([pts_opti{1}(k,1),pts_opti{n}(k,1)+size(imgpyr{1}{1},2)],[pts_opti{1}(k,2),pts_opti{n}(k,2)],'-', 'Color', colors(mod(s,6)+1,:));
-            end
-
-            hold on;
-            %quiver(pts{1}(j,1)+size(imgpyr{1}{1},2), pts{1}(j,2)+size(imgpyr{1}{1},1), pts{n}(k,1)-pts{1}(j,1), pts{n}(k,2)-pts{1}(j,2), 'r', 'LineWidth', 2);
-
-            plot([pts_opti{1}(k,1)+size(imgpyr{1}{1},2),pts_opti{n}(k,1)+size(imgpyr{1}{1},2)],[pts_opti{1}(k,2)+size(imgpyr{1}{1},1),pts_opti{n}(k,2)+size(imgpyr{1}{1},1)], 'r', 'LineWidth', 2);
-    
-               
-            
-        end
-        
-        title(['Optical Flow (Lucas-Kanade) image',num2str(1),' to image',num2str(n)]);
-        
-        hold off;
-        
-        a=10;
-    
-        
     end
 
 end
