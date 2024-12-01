@@ -170,7 +170,7 @@ end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-size_frame=8;
+size_frame=12;
 size_ids=size(ids{size_frame},1);
 M0=zeros(size_ids*size_frame*2,size_ids*3+6);
 b0=zeros(size_ids*size_frame*2,1);
@@ -326,27 +326,86 @@ end
 
 x_opti=[x_opti;I0_x_I_k_opti(8:10,1);I0_g_opti];
 
-SSS=M*x_opti;
+SSS=M*x_opti-b;
+
+SS=M*x-b;
 %%
 
-P1=I0_p_f_opti(:,1)
+nnn=6;
 
-xP=I0_x_I_k_opti(5:7,1)*0
+P1=I0_p_f_opti(:,nnn)
 
-xQ=I0_x_I_k_opti(1:4,1)
 
 vvv=camR'*(P1-camT)
 
+vvv_norm=vvv/vvv(3);
 
-pts_opti{1}(1,:)
+uv_dist = distort_cv(vvv_norm(1:2), camK,camD)
+
+
+
+pts_opti{1}(nnn,:)
                 
-pts_n_opti{1}(1,:)
+
                  
 
-Gamma=[1,0,-pts_n{1}(1,1);...
-       0,1,-pts_n{1}(1,2)]
+Gamma=[1,0,-pts_n_opti{1}(nnn,1);...
+       0,1,-pts_n_opti{1}(nnn,2)]
 
 Gamma*vvv
+
+
+%%
+
+
+
+for n=1:1%size_frame
+
+    for i=1:size_ids%size(ids{10},1)
+
+       
+
+%          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          pts_opti{n}(i,:)=pts{n}(s,:);
+%          ids_opti{n}(i,:)=ids{n}(s,:);
+%          pts_n_opti{n}(i,:)=pts_n{n}(s,:);
+%          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+         Gamma=[1,0,-pts_n_opti{n}(i,1);...
+                0,1,-pts_n_opti{n}(i,2)];
+
+         C_I_R=camR';
+
+         I0_alpha_k=imuPropagate_joint{n}{1};
+
+         I0_q_k=imuPropagate_joint{n}{2};
+
+         Delta_T=imuPropagate_joint{n}{6};
+
+         Ik_I0_R=quatern2rotMat(I0_q_k)';
+
+         % 论文中公式（28）（29）（30）存在错误，这里计算的时候做了修改
+         MM((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,(i-1)*3+1:(i-1)*3+3)=Gamma*C_I_R*Ik_I0_R;
+
+         MM((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,size_ids*3+1:size_ids*3+3)=-Gamma*C_I_R*Ik_I0_R*Delta_T;
+
+         MM((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,size_ids*3+4:size_ids*3+6)=0.5*Gamma*C_I_R*Ik_I0_R*Delta_T*Delta_T;
+
+         bb((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,1)=Gamma*camR'*camT+ Gamma*C_I_R*Ik_I0_R*I0_alpha_k;
+
+   
+
+    end
+
+end
+
+sss=MM*x_opti-bb;
+
+
+
+
+
+
 
 %%
 
