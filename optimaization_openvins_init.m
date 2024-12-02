@@ -39,9 +39,17 @@ data{10}=[0;0;1]*gravity_mag;
 % data{11}=G_p_f;
 
 
-options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
+%options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
+%
+%[a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
 
-[a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
+
+
+fprintf('global optimization:\n');
+TolX=1e-6;
+TolFun=1e-6;
+MaxIter=20;
+[a,resnorm]=Optimize_my_LM(@loss_function,a0,data,TolX,TolFun,MaxIter);
 
 
 
