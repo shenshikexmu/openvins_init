@@ -6,7 +6,7 @@ addpath('repropagate');
 addpath('quaternion');
 
 global matlab_or_octave
-matlab_or_octave=1; 
+matlab_or_octave=0; 
 
     
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
@@ -26,6 +26,10 @@ else                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  octave
     pkg load image
     datacsv_cam0 = csv2cell([file_cam0,'data.csv']);
     cam0Para = readYaml_octave([file_cam0,'sensor.yaml']);
+    cam0Para.T_BS.data=reshape(cam0Para.data,4,4)';
+    datacsv_imu0 = csv2cell([file_imu0,'data.csv']);
+    imuData=cell2mat(datacsv_imu0(2:end,:));
+    imuData(:,1)=imuData(:,1)*10e-10;
 end
 
 
@@ -277,6 +281,8 @@ for n=1:size_frame
 
 
 end
+
+drawProjection(x_I_k,G_p_f,camR,camT);
 
 
 %%
