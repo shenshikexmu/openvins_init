@@ -30,7 +30,7 @@ while (~found && k<MaxIter+1)
     
     delta_x=-(Jacobi'*Jacobi+Lambda*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain))\Jacobi'*Ek;    
     
-    %delta_x=-[Jacobi;(Lambda)^2*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain)]\[Ek;zeros(len_uncertain,1)];      
+    delta_x=-[Jacobi;(Lambda)*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain)]\[Ek;zeros(len_uncertain,1)];      
 
     
     if (norm(delta_x)<=TolX*(norm(xk)+TolX))

@@ -39,9 +39,9 @@ data{10}=[0;0;1]*gravity_mag;
 % data{11}=G_p_f;
 
 
-%options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
-%
-%[a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
+% options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
+% 
+% [a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
 
 
 
@@ -49,7 +49,8 @@ fprintf('global optimization:\n');
 TolX=1e-6;
 TolFun=1e-6;
 MaxIter=20;
-[a,resnorm]=Optimize_my_LM(@loss_function,a0,data,TolX,TolFun,MaxIter);
+ConstantValue=[4,5,6];
+[a,resnorm]=Optimize_my_LM(@loss_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
 
 
 
@@ -104,6 +105,8 @@ for j=1:size_ids
 
         pts_temp=pts_opti{n}(j,1:2);
 
+        pts_n_temp=pts_n_opti{n}(j,1:2);
+
         a1=a(n*15-14:n*15,1);
 
         P1=a1(4:6,1);       
@@ -116,6 +119,8 @@ for j=1:size_ids
         
 
         Erepro=evaluate_Reprojection(P1,R1,camK,camD,camR,camT,pts_temp,G_p_f_k)*precision_pic;
+
+        %Erepro=evaluate_Reprojection_norm(P1,R1,camK,camD,camR,camT,pts_n_temp,G_p_f_k)*precision_pic*camK(1,1);
     
         E=[E;Erepro];
 
@@ -181,6 +186,30 @@ C_p_f=C_p_f/C_p_f(3);
 uv_dist = distort_cv(C_p_f(1:2), camK,camD);
 
 E=(uv_dist-pts_temp)';
+
+
+end
+
+
+function E=evaluate_Reprojection_norm(G_I_p,G_I_R,camK,camD,camR,camT,pts_n_temp,G_p_f_k)
+
+
+
+G_c_R=G_I_R*camR;
+
+G_c_T=G_I_p+G_I_R*camT;
+
+
+C_p_f=G_c_R'*(G_p_f_k-G_c_T);
+
+C_p_f=C_p_f/C_p_f(3);
+
+
+Gamma=[1,0,-pts_n_temp(1);...
+       0,1,-pts_n_temp(2)];
+
+
+E=Gamma*C_p_f;
 
 
 end

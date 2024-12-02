@@ -6,7 +6,7 @@ addpath('repropagate');
 addpath('quaternion');
 
 global matlab_or_octave
-matlab_or_octave=0; 
+matlab_or_octave=1; 
 
     
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
@@ -426,18 +426,18 @@ drawProjection(I0_x_I_k_opti,I0_p_f_opti,camR,camT);
 
 %%
 
-if 1
-
-    for n=size_frame
-
-        drawOpticalFlowLK(imgpyr{1}{1},imgpyr{n}{1},pts_opti{1},pts_opti{n},1,n);
-          
-    end
-
-end
-
-
-b=1000;
+% if 1
+% 
+%     for n=size_frame
+% 
+%         drawOpticalFlowLK(imgpyr{1}{1},imgpyr{n}{1},pts_opti{1},pts_opti{n},1,n);
+%           
+%     end
+% 
+% end
+% 
+% 
+% b=1000;
 
 
 
