@@ -6,7 +6,7 @@ addpath('repropagate');
 addpath('quaternion');
 
 global matlab_or_octave
-matlab_or_octave=1; 
+matlab_or_octave=0; 
 
     
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
@@ -166,9 +166,8 @@ for n=1:m
 
     imuPropagate_joint{n}=repropagate_VINS_Mono(imuData_fragment_joint{n},ba,bg);
 
-    
-
 end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  paper <OpenVINS State Initiaolization: Details and Derivations> 
 %

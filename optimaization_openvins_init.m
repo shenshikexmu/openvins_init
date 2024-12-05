@@ -183,7 +183,10 @@ C_p_f=C_p_f/C_p_f(3);
 
 
 
-uv_dist = distort_cv(C_p_f(1:2), camK,camD);
+[uv_dist,H_dz_dzn]= distort_cv(C_p_f(1:2), camK,camD);
+
+
+
 
 E=(uv_dist-pts_temp)';
 
