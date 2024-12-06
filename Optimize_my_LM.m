@@ -17,7 +17,7 @@ xk=a0;
 
 
 Jacobi=Get_Jacobi(Loss_fun,xk,data,ConstantValue);
-Ek=Loss_fun(xk,data);
+[Ek,Jacbi_loss]=Loss_fun(xk,data);
 
 g=Jacobi'*Ek;
 
@@ -106,7 +106,7 @@ end
 
 function Jacobi=Get_Jacobi(Loss_fun,xk,data,ConstantValue)
 
-scale=1e-4;
+scale=1e-3;
 
 Ek=Loss_fun(xk,data);
 

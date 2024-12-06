@@ -79,9 +79,7 @@ J3=[zeros(6,9);...
 
 %residuals_=residuals;
 
-precision_dba=1;
 
-precision_dbg=1;
 
 
 for i=1:15
@@ -99,24 +97,34 @@ for i=1:15
     
 end
 
-% precision_dba=500;
-% 
-% precision_dbg=1000;
-% 
-% 
-% residuals(16:18,1)=dba*precision_dba;
-% 
-% residuals(19:21,1)=dbg*precision_dbg;
-
-
-J0=[J0;zeros(6,6)];
-J1=[J1;zeros(3,3),eye(3)*precision_dba,zeros(3,3);zeros(3,3),zeros(3,3),eye(3)*precision_dbg];
-J2=[J2;zeros(6,6)];
-J3=[J3;zeros(6,9)];
 
 Ji=[J0,J1];
 
 Jj=[J2,J3];
+
+
+%precision_dba=1;
+%
+%precision_dbg=1;
+%
+%% precision_dba=500;
+%% 
+%% precision_dbg=1000;
+%% 
+%% 
+%% residuals(16:18,1)=dba*precision_dba;
+%% 
+%% residuals(19:21,1)=dbg*precision_dbg;
+%
+%
+%J0=[J0;zeros(6,6)];
+%J1=[J1;zeros(3,3),eye(3)*precision_dba,zeros(3,3);zeros(3,3),zeros(3,3),eye(3)*precision_dbg];
+%J2=[J2;zeros(6,6)];
+%J3=[J3;zeros(6,9)];
+%
+%Ji=[J0,J1];
+%
+%Jj=[J2,J3];
 
 
     

@@ -1,8 +1,8 @@
-clear all
+%clear all
 clc
 addpath('shanzhaiCV');
 addpath('yamlMatlab');
-
+addpath('quaternion');
 
 global matlab_or_octave
 matlab_or_octave=0; 
@@ -35,8 +35,15 @@ camK=[cam0Para.intrinsics(1),0,cam0Para.intrinsics(3);...
 camD=[cam0Para.distortion_coefficients(1),cam0Para.distortion_coefficients(2),cam0Para.distortion_coefficients(3),cam0Para.distortion_coefficients(4)];   
 
 
+camR=cam0Para.T_BS.data(1:3,1:3);
+
+camT=cam0Para.T_BS.data(1:3,4);
+
+
+
+
 uv_norm=[0.1,0.2];
-delta=0.00001;
+delta=0.001;
 
 [uv_dist,H_dz_dzn] = distort_cv(uv_norm, camK,camD);
 
@@ -55,6 +62,66 @@ for i=1:2
     
     
 end
+
+
+theta=randn(3,1);
+theta0=randn(3,1);%[0;0;0];%randn(3,1);
+a=randn(3,1);
+%a=a/norm(a);
+
+R0=angleAxisToRotationMatrix(theta0);
+
+for i=1:3
+    
+    theta_temp=theta;
+    theta_temp(i)=theta_temp(i)+delta;
+    
+    JRa(:,i)=(R0*angleAxisToRotationMatrix(theta_temp)*a-R0*angleAxisToRotationMatrix(theta)*a)/delta;
+    
+    JRtransa(:,i)=(R0'*angleAxisToRotationMatrix(theta_temp)'*a-R0'*angleAxisToRotationMatrix(theta)'*a)/delta;
+    
+end
+
+%JRa
+%
+%dRa_dtheta=R0*D_Ra_D_theta(theta,a)
+%
+%JRtransa
+%
+%dRtans_a_dtheta=R0'*D_Rtrans_a_D_theta(theta,a)
+
+G_I_p=[0;0;0];
+
+G_I_angleAxis=[0.051814;-1.9161;-0.073786];
+
+G_p_f_k=[-0.042518;-0.084215;-0.050919];
+
+pts_temp=[144.09,	316.37];
+
+[E,H_dz_dG_I_p,H_dz_dG_I_angleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection_try(G_I_p,G_I_angleAxis,G_p_f_k,camK,camD,camR,camT,pts_temp);
+
+
+for i=1:3
+    
+    G_I_angleAxis_temp=G_I_angleAxis;
+    G_I_angleAxis_temp(i)=G_I_angleAxis(i)+delta;
+    
+    [E_temp,H_dz_dG_I_p,H_dz_dG_I_angleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection_try(G_I_p,G_I_angleAxis_temp,G_p_f_k,camK,camD,camR,camT,pts_temp);
+
+    JG_I_angleAxis(:,i)=(E_temp-E)/delta;
+    
+end
+
+
+JG_I_angleAxis
+
+
+H_dz_dG_I_angleAxis
+
+
+
+
+
 
 
 

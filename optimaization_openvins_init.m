@@ -49,7 +49,7 @@ fprintf('global optimization:\n');
 TolX=1e-6;
 TolFun=1e-6;
 MaxIter=20;
-ConstantValue=[4,5,6];
+ConstantValue=[];%[4,5,6];
 [a,resnorm]=Optimize_my_LM(@loss_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
 
 
@@ -79,7 +79,7 @@ end
 
 
 
-function E=loss_function(a,data)
+function [E,Jacbi]=loss_function(a,data)
 
 imuPropagate=data{1};
 pts_opti=data{2};
@@ -93,56 +93,18 @@ size_ids=data{9};
 gravity=data{10};
 
 
-E=[];
-precision_pic=1;
-
-
-for j=1:size_ids
-
-    G_p_f_k=a(size_frame*15+j*3-2:size_frame*15+j*3);
-
-    for n=1:size_frame
-
-        pts_temp=pts_opti{n}(j,1:2);
-
-        pts_n_temp=pts_n_opti{n}(j,1:2);
-
-        a1=a(n*15-14:n*15,1);
-
-        P1=a1(4:6,1);       
-        if n==1
-            P1=[0;0;0];
-        end
-        angleAxis1=a1(1:3,1);
-
-        R1=angleAxisToRotationMatrix(angleAxis1);     %  Q1=angleAxis2Quaternion(angleAxis1)';   R1_=quatern2rotMat(Q1)
-        
-
-        Erepro=evaluate_Reprojection(P1,R1,camK,camD,camR,camT,pts_temp,G_p_f_k)*precision_pic;
-
-        %Erepro=evaluate_Reprojection_norm(P1,R1,camK,camD,camR,camT,pts_n_temp,G_p_f_k)*precision_pic*camK(1,1);
-    
-        E=[E;Erepro];
-
-
-    end
-
-
-end
-
+E=zeros(size_frame*size_ids*2+(size_frame-1)*15,1);
+Jacbi=zeros(size_frame*size_ids*2+(size_frame-1)*15,size_frame*15+size_ids*3);
 
 
 for i=2:size_frame
     
     %a0(i*15+1:i*15+15,1)=[angleAxistemp;Ptemp;Vtemp;Batemp;Bgtemp];
     
-    a1=a(i*15-29:i*15-15,1);
-    a2=a(i*15-14:i*15,1);
+    a1=a((i-2)*15+1:(i-1)*15,1);%a(i*15-29:i*15-15,1);
+    a2=a((i-1)*15+1:i*15,1);%a(i*15-14:i*15,1);
     
     P1=a1(4:6,1);
-    if i==2
-        P1=[0;0;0];
-    end
     angleAxis1=a1(1:3,1);
     Q1=angleAxis2Quaternion(angleAxis1)';
     V1=a1(7:9,1);
@@ -156,40 +118,104 @@ for i=2:size_frame
     Bg2=a2(10:12,1);
     Ba2=a2(13:15,1);
     
-    residuals=evaluate_VINS_Mono_gravity(P1,Q1,V1,Ba1,Bg1,P2,Q2,V2,Ba2,Bg2,imuPropagate{i},gravity); 
+    [residuals,J1,J2]=evaluate_VINS_Mono_gravity(P1,Q1,V1,Ba1,Bg1,P2,Q2,V2,Ba2,Bg2,imuPropagate{i},gravity); 
+    
+    E((i-2)*15+1:(i-1)*15,1)=residuals;
+    
+    Jacbi((i-2)*15+1:(i-1)*15,(i-2)*15+1:(i-1)*15)=J1;
+    
+    Jacbi((i-2)*15+1:(i-1)*15,(i-1)*15+1:i*15)=J2;
  
-    E=[E;residuals];
 end
     
 
+precision_pic=1;
+
+
+for j=1:size_ids
+
+    G_p_f_k=a(size_frame*15+(j-1)*3+1:size_frame*15+j*3);
+
+    for n=1:size_frame
+
+        pts_temp=pts_opti{n}(j,1:2);
+
+        pts_n_temp=pts_n_opti{n}(j,1:2);
+
+%        a1=a((n-1)*15+1:(n-1)*15+15,1);
+%        P1=a1(4:6,1);       
+%        angleAxis1=a1(1:3,1);
+        
+        angleAxis1=a((n-1)*15+1:(n-1)*15+3,1);
+        P1=a((n-1)*15+4:(n-1)*15+6,1);
+        
+
+        %R1=angleAxisToRotationMatrix(angleAxis1);     %  Q1=angleAxis2Quaternion(angleAxis1)';   R1_=quatern2rotMat(Q1)
+        
+        [Erepro,H_dz_dP1,H_dz_dangleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection(P1,angleAxis1,G_p_f_k,camK,camD,camR,camT,pts_temp);
+
+        %Erepro=evaluate_Reprojection_norm(P1,R1,camK,camD,camR,camT,pts_n_temp,G_p_f_k)*precision_pic*camK(1,1);
+  
+        E((size_frame-1)*15+(j-1)*size_frame*2+(n-1)*2+1:(size_frame-1)*15+(j-1)*size_frame*2+n*2,1)=Erepro*precision_pic;
+        
+        Jacbi((size_frame-1)*15+(j-1)*size_frame*2+(n-1)*2+1:(size_frame-1)*15+(j-1)*size_frame*2+n*2,(n-1)*15+1:(n-1)*15+3)=H_dz_dangleAxis*precision_pic;
+         
+        Jacbi((size_frame-1)*15+(j-1)*size_frame*2+(n-1)*2+1:(size_frame-1)*15+(j-1)*size_frame*2+n*2,(n-1)*15+4:(n-1)*15+6)=H_dz_dP1*precision_pic;
+        
+        Jacbi((size_frame-1)*15+(j-1)*size_frame*2+(n-1)*2+1:(size_frame-1)*15+(j-1)*size_frame*2+n*2,size_frame*15+(j-1)*3+1:size_frame*15+j*3)=H_dz_dG_p_f_k*precision_pic;
+        
+
+
+    end
 
 
 end
 
 
 
-function E=evaluate_Reprojection(G_I_p,G_I_R,camK,camD,camR,camT,pts_temp,G_p_f_k)
 
 
+
+
+end
+
+
+
+function [E,H_dz_dG_I_p,H_dz_dG_I_angleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection(G_I_p,G_I_angleAxis,G_p_f_k,camK,camD,camR,camT,pts_temp)
+
+G_I_R=angleAxisToRotationMatrix(G_I_angleAxis);
 
 G_c_R=G_I_R*camR;
 
 G_c_T=G_I_p+G_I_R*camT;
 
-
 C_p_f=G_c_R'*(G_p_f_k-G_c_T);
 
-C_p_f=C_p_f/C_p_f(3);
 
-
-
-[uv_dist,H_dz_dzn]= distort_cv(C_p_f(1:2), camK,camD);
-
-
+[uv_dist,H_dz_dzn]= distort_cv(C_p_f(1:2)/C_p_f(3), camK,camD);
 
 
 E=(uv_dist-pts_temp)';
 
+
+d_uv_norm_d_C_p_f=[1/C_p_f(3),0,-C_p_f(1)/C_p_f(3)^2;...
+                   0,1/C_p_f(3),-C_p_f(2)/C_p_f(3)^2];
+                   
+d_C_p_f_d_G_p_f_k=G_c_R';
+
+d_C_p_f_d_G_I_p=-G_c_R';
+
+
+A=G_p_f_k-G_c_T;
+
+d_C_p_f_d_G_I_angleAxis=camR'*D_Rtrans_a_D_theta(G_I_angleAxis,A);
+
+H_dz_dG_p_f_k=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_p_f_k;
+
+H_dz_dG_I_p=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_I_p;
+
+
+H_dz_dG_I_angleAxis=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_I_angleAxis;
 
 end
 
