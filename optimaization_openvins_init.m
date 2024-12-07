@@ -39,19 +39,19 @@ data{10}=[0;0;1]*gravity_mag;
 % data{11}=G_p_f;
 
 
-% options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
+options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
+
+[a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
+
+
+
+% fprintf('global optimization:\n');
+% TolX=1e-6;
+% TolFun=1e-6;
+% MaxIter=20;
+% ConstantValue=[4,5,6];
+% [a,resnorm]=Optimize_my_LM(@loss_function,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
 % 
-% [a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
-
-
-
-fprintf('global optimization:\n');
-TolX=1e-6;
-TolFun=1e-6;
-MaxIter=20;
-ConstantValue=[];%[4,5,6];
-[a,resnorm]=Optimize_my_LM(@loss_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
-
 
 
 for j=1:size_ids
@@ -66,7 +66,7 @@ for n=1:size_frame
    a1=a(n*15-14:n*15,1);
 
 
-   q_I_k_=angleAxis2Quaternion(a1(1:3))';
+   q_I_k_=angleAxis2Quaternion(a1(1:3));
 
    x_I_k_opti(:,n)=[q_I_k_;a1(4:15)];
 
@@ -122,9 +122,9 @@ for i=2:size_frame
     
     E((i-2)*15+1:(i-1)*15,1)=residuals;
     
-    Jacbi((i-2)*15+1:(i-1)*15,(i-2)*15+1:(i-1)*15)=J1;
+    Jacbi((i-2)*15+1:(i-1)*15,(i-2)*15+1:(i-1)*15)=[J1(:,4:6),J1(:,1:3),J1(:,7:9),J1(:,13:15),J1(:,10:12)];
     
-    Jacbi((i-2)*15+1:(i-1)*15,(i-1)*15+1:i*15)=J2;
+    Jacbi((i-2)*15+1:(i-1)*15,(i-1)*15+1:i*15)=[J2(:,4:6),J2(:,1:3),J2(:,7:9),J2(:,13:15),J2(:,10:12)];
  
 end
     
@@ -149,10 +149,10 @@ for j=1:size_ids
         angleAxis1=a((n-1)*15+1:(n-1)*15+3,1);
         P1=a((n-1)*15+4:(n-1)*15+6,1);
         
-
+        Q1=angleAxis2Quaternion(angleAxis1);
         %R1=angleAxisToRotationMatrix(angleAxis1);     %  Q1=angleAxis2Quaternion(angleAxis1)';   R1_=quatern2rotMat(Q1)
         
-        [Erepro,H_dz_dP1,H_dz_dangleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection(P1,angleAxis1,G_p_f_k,camK,camD,camR,camT,pts_temp);
+        [Erepro,H_dz_dP1,H_dz_dangleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection(P1,Q1,G_p_f_k,camK,camD,camR,camT,pts_temp);
 
         %Erepro=evaluate_Reprojection_norm(P1,R1,camK,camD,camR,camT,pts_n_temp,G_p_f_k)*precision_pic*camK(1,1);
   
@@ -174,16 +174,71 @@ end
 
 
 
+end
 
+
+
+
+
+function a=plus_function(a,delta_a,data)
+
+
+size_frame=data{8};
+size_ids=data{9};
+
+
+for i=1:size_frame
+    
+    %a0(i*15+1:i*15+15,1)=[angleAxistemp;Ptemp;Vtemp;Batemp;Bgtemp];
+    
+    a1=a((i-1)*15+1:i*15,1);
+    delta_a1=delta_a((i-1)*15+1:i*15,1);
+
+    if norm(delta_a1(1:3,1))~=0
+
+        Q1=quaternProd(angleAxis2Quaternion(a1(1:3,1)), utility_deltaQ_VINS_Mono(delta_a1(1:3,1)) );
+        angleAxis1=quaternionToAngleAxis(Q1);
+    else
+
+        angleAxis1=a1(1:3,1);
+    end
+    
+    P1=a1(4:6,1)+delta_a1(4:6,1);
+
+    V1=a1(7:9,1)+delta_a1(7:9,1);
+    Bg1=a1(10:12,1)+delta_a1(10:12,1);
+    Ba1=a1(13:15,1)+delta_a1(13:15,1);
+
+    a((i-1)*15+1:i*15,1)=[angleAxis1;P1;V1;Bg1;Ba1];
+
+   
+end
+    
+
+for j=1:size_ids
+
+    %G_p_f_k=a(size_frame*15+(j-1)*3+1:size_frame*15+j*3);
+
+    a(size_frame*15+(j-1)*3+1:size_frame*15+j*3)=a(size_frame*15+(j-1)*3+1:size_frame*15+j*3)+delta_a(size_frame*15+(j-1)*3+1:size_frame*15+j*3);
+
+end
 
 
 end
 
 
 
-function [E,H_dz_dG_I_p,H_dz_dG_I_angleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection(G_I_p,G_I_angleAxis,G_p_f_k,camK,camD,camR,camT,pts_temp)
 
-G_I_R=angleAxisToRotationMatrix(G_I_angleAxis);
+
+
+
+
+
+
+
+function [E,H_dz_dG_I_p,H_dz_dG_I_delta_theta,H_dz_dG_p_f_k]=evaluate_Reprojection(G_I_p,G_I_q,G_p_f_k,camK,camD,camR,camT,pts_temp)
+
+G_I_R=quatern2rotMat(G_I_q);
 
 G_c_R=G_I_R*camR;
 
@@ -191,12 +246,9 @@ G_c_T=G_I_p+G_I_R*camT;
 
 C_p_f=G_c_R'*(G_p_f_k-G_c_T);
 
-
 [uv_dist,H_dz_dzn]= distort_cv(C_p_f(1:2)/C_p_f(3), camK,camD);
 
-
 E=(uv_dist-pts_temp)';
-
 
 d_uv_norm_d_C_p_f=[1/C_p_f(3),0,-C_p_f(1)/C_p_f(3)^2;...
                    0,1/C_p_f(3),-C_p_f(2)/C_p_f(3)^2];
@@ -205,17 +257,15 @@ d_C_p_f_d_G_p_f_k=G_c_R';
 
 d_C_p_f_d_G_I_p=-G_c_R';
 
-
-A=G_p_f_k-G_c_T;
-
-d_C_p_f_d_G_I_angleAxis=camR'*D_Rtrans_a_D_theta(G_I_angleAxis,A);
+d_C_p_f_d_G_I_delta_theta=camR'*D_Rtrans_a_D_delta_theta(G_I_q,G_p_f_k-G_I_p); % 问题在于 G_c_T包含 G_I_R，所以在计算导数时需要把G_c_T中的G_I_R考虑在内。 
 
 H_dz_dG_p_f_k=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_p_f_k;
 
 H_dz_dG_I_p=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_I_p;
 
 
-H_dz_dG_I_angleAxis=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_I_angleAxis;
+H_dz_dG_I_delta_theta=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_I_delta_theta;
+
 
 end
 

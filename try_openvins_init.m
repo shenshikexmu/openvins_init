@@ -1,4 +1,4 @@
-%clear all
+clear all
 clc
 addpath('shanzhaiCV');
 addpath('yamlMatlab');
@@ -6,7 +6,7 @@ addpath('repropagate');
 addpath('quaternion');
 
 global matlab_or_octave
-matlab_or_octave=0; 
+matlab_or_octave=1; 
 
     
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
@@ -81,7 +81,7 @@ GYR_W=0.00001;
 
 
 
-i=989;
+i=589;
 
 
 
@@ -173,7 +173,7 @@ end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-size_frame=12;
+size_frame=16;
 size_ids=size(ids{size_frame},1);
 M0=zeros(size_ids*size_frame*2,size_ids*3+6);
 b0=zeros(size_ids*size_frame*2,1);
@@ -281,7 +281,7 @@ for n=1:size_frame
 
 end
 
-drawProjection(x_I_k,G_p_f,camR,camT);
+
 
 
 %%
@@ -425,18 +425,18 @@ drawProjection(I0_x_I_k_opti,I0_p_f_opti,camR,camT);
 
 %%
 
-% if 1
-% 
-%     for n=size_frame
-% 
-%         drawOpticalFlowLK(imgpyr{1}{1},imgpyr{n}{1},pts_opti{1},pts_opti{n},1,n);
-%           
-%     end
-% 
-% end
-% 
-% 
-% b=1000;
+if 1
+
+    for n=size_frame
+
+        drawOpticalFlowLK(imgpyr{1}{1},imgpyr{n}{1},pts_opti{1},pts_opti{n},1,n);
+          
+    end
+
+end
+
+   
+b=1000;
 
 
 

@@ -3,9 +3,10 @@ clc
 addpath('shanzhaiCV');
 addpath('yamlMatlab');
 addpath('quaternion');
+addpath('repropagate');
 
 global matlab_or_octave
-matlab_or_octave=0; 
+matlab_or_octave=1; 
 
     
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
@@ -43,7 +44,7 @@ camT=cam0Para.T_BS.data(1:3,4);
 
 
 uv_norm=[0.1,0.2];
-delta=0.001;
+delta=0.00001;
 
 [uv_dist,H_dz_dzn] = distort_cv(uv_norm, camK,camD);
 
@@ -90,23 +91,75 @@ end
 %
 %dRtans_a_dtheta=R0'*D_Rtrans_a_D_theta(theta,a)
 
+
+theta=randn(3,1);
+theta0=randn(3,1);%[0;0;0];%randn(3,1);
+q=angleAxis2Quaternion(theta);
+q0=angleAxis2Quaternion(theta0);
+
+a=randn(3,1);
+%a=a/norm(a);
+
+R0=quatern2rotMat(q0);
+
+deltaX=[0;0;0];
+
+for i=1:3
+    
+    deltaX_temp=deltaX;
+
+    deltaX_temp(i)=deltaX_temp(i)+delta;
+
+
+
+    q_temp=quaternProd(q, utility_deltaQ_VINS_Mono(deltaX_temp) );
+    
+    
+    JRa(:,i)=(R0*quatern2rotMat(q_temp)*a-R0*quatern2rotMat(q)*a)/delta;
+    
+    JRtransa(:,i)=(R0*quatern2rotMat(q_temp)'*a-R0*quatern2rotMat(q)'*a)/delta;
+    
+end
+
+% JRa
+% 
+% dRa_ddelta_theta=R0*D_Ra_D_delta_theta(q,a)
+% 
+% JRtransa
+% 
+% dRtans_a_ddelta_theta=R0*D_Rtransa_D_delta_theta(q,a)
+
+
+
+
+
+
+
 G_I_p=[0;0;0];
 
 G_I_angleAxis=[0.051814;-1.9161;-0.073786];
+
+G_I_q=angleAxis2Quaternion(G_I_angleAxis);
 
 G_p_f_k=[-0.042518;-0.084215;-0.050919];
 
 pts_temp=[144.09,	316.37];
 
-[E,H_dz_dG_I_p,H_dz_dG_I_angleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection_try(G_I_p,G_I_angleAxis,G_p_f_k,camK,camD,camR,camT,pts_temp);
+[E,H_dz_dG_I_p,H_dz_dG_I_angleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection_try(G_I_p,G_I_q,G_p_f_k,camK,camD,camR,camT,pts_temp);
 
+deltaX=[0;0;0];
 
 for i=1:3
+
+    deltaX_temp=deltaX;
+
+    deltaX_temp(i)=deltaX_temp(i)+delta;
+
+
+
+    G_I_q_temp=quaternProd(G_I_q, utility_deltaQ_VINS_Mono(deltaX_temp) );
     
-    G_I_angleAxis_temp=G_I_angleAxis;
-    G_I_angleAxis_temp(i)=G_I_angleAxis(i)+delta;
-    
-    [E_temp,H_dz_dG_I_p,H_dz_dG_I_angleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection_try(G_I_p,G_I_angleAxis_temp,G_p_f_k,camK,camD,camR,camT,pts_temp);
+    [E_temp,H_dz_dG_I_p,H_dz_dG_I_angleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection_try(G_I_p,G_I_q_temp,G_p_f_k,camK,camD,camR,camT,pts_temp);
 
     JG_I_angleAxis(:,i)=(E_temp-E)/delta;
     
@@ -114,7 +167,7 @@ end
 
 
 JG_I_angleAxis
-
+ 
 
 H_dz_dG_I_angleAxis
 

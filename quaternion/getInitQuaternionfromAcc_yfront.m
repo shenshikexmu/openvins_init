@@ -50,7 +50,7 @@ else
 end
 
 
-q=rotMat2qRichard(R)';
+q=rotMat2qRichard(R);
 
 
 

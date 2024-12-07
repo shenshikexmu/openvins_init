@@ -14,7 +14,7 @@ end
 
 colors = jet(size(x_I_k,2));
 
-scale=0.05;
+scale=0.5;
 
 img_x_len=0.2*scale;
 img_y_len=0.127*scale;
