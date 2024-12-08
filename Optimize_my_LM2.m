@@ -1,6 +1,7 @@
-function  [a,resnorm]=Optimize_my_LM(Loss_fun,plus_fun,a0,data,TolX,TolFun,MaxIter,ConstantValue)
+function  [a,resnorm]=Optimize_my_LM2(Loss_fun,plus_fun,a0,data,TolX,TolFun,MaxIter,ConstantValue)
 
 % author  Zhang Xin
+
 
 if nargin<7
     ConstantValue=[];
@@ -11,38 +12,31 @@ len_uncertain=length(a0)-length(ConstantValue);
 
 
 
-
-Lambda=1e-2;
+tao=1e-10;
 xk=a0;
+
+v=2;
 
 
 [Ek,Jacobi]=Loss_fun(xk,data);
 Jacobi=change_Jacobi_using_ConstantValue(Jacobi,ConstantValue);
 
-%Jacobi=Get_Jacobi(Loss_fun,plus_fun,xk,data,ConstantValue);
-
-
-
 g=Jacobi'*Ek;
 
 found=logical(norm(g)<=TolFun);
-
+mou=tao*max(diag(Jacobi'*Jacobi));
 
 k=0;
 fprintf('%12s  %12s %12s %12s \n','Iterations','Residual','Lambda','Step');
 while (~found && k<MaxIter+1)
     
-    delta_x=-(Jacobi'*Jacobi+Lambda*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain))\Jacobi'*Ek;    
+    %delta_x=-(Jacobi'*Jacobi+mou*eye(len_uncertain))\Jacobi'*Ek;     
+    
+    delta_x=-[Jacobi;sqrt(mou)*eye(len_uncertain)]\[Ek;zeros(len_uncertain,1)];  
 
-%     M=-(Jacobi'*Jacobi+Lambda*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain));
+    %     M=-(Jacobi'*Jacobi+Lambda*0.001*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain));
 %     P=Jacobi'*Ek;
 %     delta_x=schur_complement(M,P,data);
-
-
-    
-    %delta_x=-[Jacobi;(Lambda)*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain)]\[Ek;zeros(len_uncertain,1)]; 
-
-    %delta_x=-inv(Jacobi'*Jacobi+Lambda*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain))*Jacobi'*Ek;
 
     
     if (norm(delta_x)<=TolX*(norm(xk)+TolX))
@@ -50,35 +44,38 @@ while (~found && k<MaxIter+1)
 
     else
         xk_new=xk_plus_delta_x(plus_fun,xk,delta_x,ConstantValue,data);%xk_new=xk+delta_x';
-        
-        %Ek_new=Loss_fun(xk_new,data);
+%         Ek=Loss_fun(xk,data);
+%         Ek_new=Loss_fun(xk_new,data);
 
         [Ek_new,Jacobi_new]=Loss_fun(xk_new,data);
         Jacobi_new=change_Jacobi_using_ConstantValue(Jacobi_new,ConstantValue);
 
-
         L0=delta_x'*Jacobi'*Ek;
         L_delta=delta_x'*Jacobi'*Jacobi*delta_x;
         rho=(Ek'*Ek-Ek_new'*Ek_new)/(-L0-L_delta);
-
-        rho=(Ek'*Ek-Ek_new'*Ek_new);
         
         
         if rho>0
+
+            fprintf('%7d  %18f %12f %15.8f \n',k,Ek'*Ek, mou, norm(delta_x));
             
-            fprintf('%7d  %18d %12f %15.8f \n',k, Ek'*Ek, Lambda, norm(delta_x));
+            %fprintf('Iterations: %d, Residual: %d, Step: %d \n',k,round(Ek'*Ek,2),norm(delta_x));
             k=k+1;
             
-            found=(norm(Ek'*Ek-Ek_new'*Ek_new)<=TolFun);  
             xk=xk_new;
+            %Jacobi=Get_Jacobi(Loss_fun,xk,data);
+            %Ek=Loss_fun(xk,data);
             Jacobi=Jacobi_new;
             Ek=Ek_new;
-       
-            Lambda=Lambda/10;
-        
-        else
-            Lambda=Lambda*10;
             
+            g=Jacobi'*Ek;
+            found=(norm(g)<=TolFun);
+            mou=mou*max([1/3,1-(2*rho-1)^3]);
+            v=2;
+        else
+            mou=mou*v;
+            v=2*v;
+           
         end
   
     end
@@ -86,9 +83,10 @@ while (~found && k<MaxIter+1)
 end
 
 
-% xk=xk_plus_delta_x(plus_fun,xk,delta_x,ConstantValue,data); %xk=xk+delta_x';
+% xk=xk+delta_x';
 % Ek=Loss_fun(xk,data);
-% fprintf('%7d  %18d %12f %15.8f \n',k, Ek'*Ek, Lambda, norm(delta_x));
+% fprintf('Iterations: %d, Residual: %d, Step: %d \n',k,Ek'*Ek,norm(delta_x));
+
 
 
 a=xk;
@@ -96,8 +94,9 @@ a=xk;
 resnorm=Ek'*Ek;
 
 
-end
 
+
+end
 
 
 
@@ -142,6 +141,9 @@ X=[x;y];
 
 
 end
+
+
+
 
 
 
@@ -210,50 +212,6 @@ end
 
 
 
-
-function Jacobi=Get_Jacobi(Loss_fun,plus_fun,xk,data,ConstantValue)
-
-scale=1e-3;
-
-Ek=Loss_fun(xk,data);
-
-
-n_ConstantValue=0;
-
-for i=1:length(xk)
-    
-    if i_in_ConstantValue(i,ConstantValue)
-        n_ConstantValue=n_ConstantValue+1;
-        continue;
-    end
-
-    x_delta=xk*0;
-   % x_temp2=xk;
-    if abs(xk(i))>scale
-  
-        delta=xk(i)*scale;
-    else
-        delta=scale;
-    end
-    x_delta(i)=x_delta(i)+delta;
-  %  x_temp2(i)=x_temp2(i)-delta;
-
-    x_temp1=plus_fun(xk,x_delta,data);
-
-    E_temp1=Loss_fun(x_temp1,data);
-
-  %  E_temp2=Loss_fun(x_temp2,data);
-
-    Jacobi(:,i-n_ConstantValue)=(E_temp1-Ek)/delta;
-
-end
-
-end
-
-
-
-
-
 function bool=i_in_ConstantValue(i,ConstantValue)
 
 bool=0;
@@ -274,6 +232,35 @@ else
         end
 
     end
+
+end
+
+end
+
+
+function Jacobi=Get_Jacobi(Loss_fun,xk,data)
+
+scale=1e-4;
+
+%Ek=Loss_fun(xk,data);
+
+for i=1:length(xk)
+    x_temp1=xk;
+    x_temp2=xk;
+    if abs(x_temp1(i))>scale
+  
+        delta=x_temp1(i)*scale;
+    else
+        delta=scale;
+    end
+    x_temp1(i)=x_temp1(i)+delta;
+    x_temp2(i)=x_temp2(i)-delta;
+
+    E_temp1=Loss_fun(x_temp1,data);
+
+    E_temp2=Loss_fun(x_temp2,data);
+
+    Jacobi(:,i)=(E_temp1-E_temp2)/delta/2;
 
 end
 

@@ -39,19 +39,19 @@ data{10}=[0;0;1]*gravity_mag;
 % data{11}=G_p_f;
 
 
-options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
-
-[a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
-
-
-
-% fprintf('global optimization:\n');
-% TolX=1e-6;
-% TolFun=1e-6;
-% MaxIter=20;
-% ConstantValue=[4,5,6];
-% [a,resnorm]=Optimize_my_LM(@loss_function,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
+% options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
 % 
+% [a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
+% 
+
+
+fprintf('global optimization:\n');
+TolX=1e-6;
+TolFun=1e-6;
+MaxIter=20;
+ConstantValue=[4,5,6];
+[a,resnorm]=Optimize_my_LM(@loss_function,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
+
 
 
 for j=1:size_ids
@@ -148,6 +148,10 @@ for j=1:size_ids
         
         angleAxis1=a((n-1)*15+1:(n-1)*15+3,1);
         P1=a((n-1)*15+4:(n-1)*15+6,1);
+
+        if n==1
+            P1=[0;0;0];
+        end
         
         Q1=angleAxis2Quaternion(angleAxis1);
         %R1=angleAxisToRotationMatrix(angleAxis1);     %  Q1=angleAxis2Quaternion(angleAxis1)';   R1_=quatern2rotMat(Q1)
