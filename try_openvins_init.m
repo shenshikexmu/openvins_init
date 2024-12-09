@@ -173,7 +173,7 @@ end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-size_frame=16;
+size_frame=14;
 size_ids=size(ids{size_frame},1);
 M0=zeros(size_ids*size_frame*2,size_ids*3+6);
 b0=zeros(size_ids*size_frame*2,1);
