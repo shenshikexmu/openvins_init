@@ -4,7 +4,7 @@ addpath('shanzhaiCV');
 addpath('yamlMatlab');
 
 global matlab_or_octave
-matlab_or_octave=0; 
+matlab_or_octave=1; 
 
 
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
@@ -74,6 +74,21 @@ for i = 1:length(allKeys)
 end
 
 map_camera_times = unique(map_camera_times);
+
+%%
+
+
+for i=1:size(feat.uvs{cam_id},1)
+
+
+    uvs_norm=undistort_cv(feat.uvs{cam_id}(i,:), camK,camD)
+
+    feat.uvs_norm{cam_id}(i,:)
+
+
+end
+
+
 
 
 %
