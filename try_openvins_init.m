@@ -73,15 +73,15 @@ max_focallength=max(camK(1,1),camK(2,2));
 global ACC_N GYR_N ACC_W GYR_W 
 
 
-ACC_N=0.5;                     %bao
-GYR_N=0.1;
-ACC_W=0.001;
-GYR_W=0.00001;
+ACC_N=2.0000e-3;                     %bao
+GYR_N=1.6968e-04;
+ACC_W=3.0000e-3;
+GYR_W=1.9393e-05;
 
 
 
 
-i=989;
+i=1098;
 
 
 
@@ -336,28 +336,28 @@ SSS=M*x_opti-b;
 SS=M*x-b;
 %%
 
-nnn=6;
-
-P1=I0_p_f_opti(:,nnn)
-
-
-vvv=camR'*(P1-camT)
-
-vvv_norm=vvv/vvv(3);
-
-uv_dist = distort_cv(vvv_norm(1:2), camK,camD)
-
-
-
-pts_opti{1}(nnn,:)
-                
-
-                 
-
-Gamma=[1,0,-pts_n_opti{1}(nnn,1);...
-       0,1,-pts_n_opti{1}(nnn,2)]
-
-Gamma*vvv
+%nnn=6;
+%
+%P1=I0_p_f_opti(:,nnn)
+%
+%
+%vvv=camR'*(P1-camT)
+%
+%vvv_norm=vvv/vvv(3);
+%
+%uv_dist = distort_cv(vvv_norm(1:2), camK,camD)
+%
+%
+%
+%pts_opti{1}(nnn,:)
+%                
+%
+%                 
+%
+%Gamma=[1,0,-pts_n_opti{1}(nnn,1);...
+%       0,1,-pts_n_opti{1}(nnn,2)]
+%
+%Gamma*vvv
 
 
 %%

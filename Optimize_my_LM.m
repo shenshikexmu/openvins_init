@@ -19,7 +19,7 @@ xk=a0;
 [Ek,Jacobi]=Loss_fun(xk,data);
 Jacobi=change_Jacobi_using_ConstantValue(Jacobi,ConstantValue);
 
-%Jacobi=Get_Jacobi(Loss_fun,plus_fun,xk,data,ConstantValue);
+%Jacobibi=Get_Jacobi(Loss_fun,plus_fun,xk,data,ConstantValue);
 
 
 

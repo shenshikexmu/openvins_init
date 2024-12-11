@@ -1,0 +1,17 @@
+num_measurements:428, system_size:198, num_features:64, have_stereo:0
+[init-d]: system of 428 measurement x 198 states created (64 features, mono)
+[ INFO] [1733884293.249486401]: Matrix has been written to A.txt
+[ INFO] [1733884293.250419385]: Matrix has been written to b.txt
+[init-d]: velocity in I0 was -0.689,0.215,-0.244 and |v| = 0.7616
+[ INFO] [1733884293.264366941]: Matrix has been written to x_hat.txt
+[init-d]: gravity in I0 was 8.326,-0.231,-5.183 and |g| = 9.8100
+[TIME]: 0.0014 seconds total (735.8 hz, 0.50 ms behind)
+[init-d]: 26 iterations | 6 states, 64 feats (64 valid) | 303 param and 527 res | cost 3.7190e+02 => 6.4693e+01
+[init]: successful initialization in 0.0566 seconds
+[init]: orientation = 0.8026, -0.1106, 0.5802, 0.0839
+[init]: bias gyro = -0.0034, 0.0215, 0.0738
+[init]: velocity = 0.6621, 1.3505, -0.1058
+[init]: bias accel = -0.0184, -0.0714, 0.0457
+[init]: position = 0.0000, 0.0000, 0.0000
+
+

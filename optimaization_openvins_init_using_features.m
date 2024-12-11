@@ -1,4 +1,4 @@
-function [x_I_k_opti,G_p_f_opti]=optimaization_openvins_init(x_I_k,G_p_f,imuPropagate,pts_opti,pts_n_opti,camK,camD,camR,camT,gravity_mag)
+function [x_I_k_opti,G_p_f_opti]=optimaization_openvins_init_using_features(x_I_k,G_p_f,imuPropagate,features,camK,camD,camR,camT,gravity_mag,map_camera_times,num_measurements)
 
 
 size_frame=size(x_I_k,2);
@@ -26,8 +26,8 @@ end
 
 
 data{1}=imuPropagate;
-data{2}=pts_opti;
-data{3}=pts_n_opti;
+data{2}=features;
+data{3}=map_camera_times;
 data{4}=camK;
 data{5}=camD;
 data{6}=camR;
@@ -35,6 +35,7 @@ data{7}=camT;
 data{8}=size_frame;
 data{9}=size_ids;
 data{10}=[0;0;1]*gravity_mag;
+data{11}=num_measurements;
 % data{10}=x_I_k;
 % data{11}=G_p_f;
 
@@ -48,9 +49,9 @@ data{10}=[0;0;1]*gravity_mag;
 fprintf('global optimization:\n');
 TolX=1e-6;
 TolFun=1e-6;
-MaxIter=20;
+MaxIter=40;
 ConstantValue=[4,5,6];
-[a,resnorm]=Optimize_my_LM2(@loss_function,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
+[a,resnorm]=Optimize_my_LM2(@loss_function_features,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
 
 
 
@@ -65,7 +66,6 @@ for n=1:size_frame
 
    a1=a(n*15-14:n*15,1);
 
-
    q_I_k_=angleAxis2Quaternion(a1(1:3));
 
    x_I_k_opti(:,n)=[q_I_k_;a1(4:15)];
@@ -79,11 +79,14 @@ end
 
 
 
-function [E,Jacbi]=loss_function(a,data)
+function [E,Jacbi]=loss_function_features(a,data)
+    
+    
+ 
 
 imuPropagate=data{1};
-pts_opti=data{2};
-pts_n_opti=data{3};
+features=data{2};
+map_camera_times=data{3};
 camK=data{4};
 camD=data{5};
 camR=data{6};
@@ -91,10 +94,11 @@ camT=data{7};
 size_frame=data{8};
 size_ids=data{9};
 gravity=data{10};
+num_measurements=data{11};
 
 
-E=zeros(size_frame*size_ids*2+(size_frame-1)*15,1);
-Jacbi=zeros(size_frame*size_ids*2+(size_frame-1)*15,size_frame*15+size_ids*3);
+E=zeros(num_measurements*2+(size_frame-1)*15,1);
+Jacbi=zeros(num_measurements*2+(size_frame-1)*15,size_frame*15+size_ids*3);
 
 
 for i=2:size_frame
@@ -132,48 +136,61 @@ end
 precision_pic=1;
 
 
-for j=1:size_ids
 
-    G_p_f_k=a(size_frame*15+(j-1)*3+1:size_frame*15+j*3);
+num_measurements=0;
 
-    for n=1:size_frame
+all_ids = keys(features);
 
-        pts_temp=pts_opti{n}(j,1:2);
-
-        pts_n_temp=pts_n_opti{n}(j,1:2);
-
-%        a1=a((n-1)*15+1:(n-1)*15+15,1);
-%        P1=a1(4:6,1);       
-%        angleAxis1=a1(1:3,1);
+for i = 1:length(all_ids)
+    id = all_ids{i}; % 获取当前键
+  
+    feat = features(id);
+    
+    featid=feat.featid;
+    
+    G_p_f_k=a(size_frame*15+(i-1)*3+1:size_frame*15+i*3);
+    
+    for cam_id = 1:length(feat.uvs_norm)
+        uvs_norm=feat.uvs_norm{cam_id};
+        uvs=feat.uvs{cam_id};
+        timestamps=feat.timestamps;
         
-        angleAxis1=a((n-1)*15+1:(n-1)*15+3,1);
-        P1=a((n-1)*15+4:(n-1)*15+6,1);
+        for j=1:size(timestamps,1)
+            
+            num_measurements=num_measurements+1;
+     
+            camtime=timestamps(j,1);  
+            n=find_cam_n_from_map_camera_times(camtime,map_camera_times);
+            uv_norm=uvs_norm(j,:);
+            uv=uvs(j,:);
+            
+            angleAxis1=a((n-1)*15+1:(n-1)*15+3,1);
+            P1=a((n-1)*15+4:(n-1)*15+6,1);
 
-        if n==1
-            P1=[0;0;0];
+            if n==1
+                P1=[0;0;0];
+            end
+            
+            Q1=angleAxis2Quaternion(angleAxis1);
+            
+            [Erepro,H_dz_dP1,H_dz_dangleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection(P1,Q1,G_p_f_k,camK,camD,camR,camT,uv);
+            
+            E((size_frame-1)*15+num_measurements*2-1:(size_frame-1)*15+num_measurements*2,1)=Erepro*precision_pic;
+            
+            Jacbi((size_frame-1)*15+num_measurements*2-1:(size_frame-1)*15+num_measurements*2,(n-1)*15+1:(n-1)*15+3)=H_dz_dangleAxis*precision_pic;
+            
+            Jacbi((size_frame-1)*15+num_measurements*2-1:(size_frame-1)*15+num_measurements*2,(n-1)*15+4:(n-1)*15+6)=H_dz_dP1*precision_pic;
+            
+            Jacbi((size_frame-1)*15+num_measurements*2-1:(size_frame-1)*15+num_measurements*2,size_frame*15+(i-1)*3+1:size_frame*15+i*3)=H_dz_dG_p_f_k*precision_pic;
+                    
         end
         
-        Q1=angleAxis2Quaternion(angleAxis1);
-        %R1=angleAxisToRotationMatrix(angleAxis1);     %  Q1=angleAxis2Quaternion(angleAxis1)';   R1_=quatern2rotMat(Q1)
-        
-        [Erepro,H_dz_dP1,H_dz_dangleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection(P1,Q1,G_p_f_k,camK,camD,camR,camT,pts_temp);
-
-        %Erepro=evaluate_Reprojection_norm(P1,R1,camK,camD,camR,camT,pts_n_temp,G_p_f_k)*precision_pic*camK(1,1);
-  
-        E((size_frame-1)*15+(j-1)*size_frame*2+(n-1)*2+1:(size_frame-1)*15+(j-1)*size_frame*2+n*2,1)=Erepro*precision_pic;
-        
-        Jacbi((size_frame-1)*15+(j-1)*size_frame*2+(n-1)*2+1:(size_frame-1)*15+(j-1)*size_frame*2+n*2,(n-1)*15+1:(n-1)*15+3)=H_dz_dangleAxis*precision_pic;
-         
-        Jacbi((size_frame-1)*15+(j-1)*size_frame*2+(n-1)*2+1:(size_frame-1)*15+(j-1)*size_frame*2+n*2,(n-1)*15+4:(n-1)*15+6)=H_dz_dP1*precision_pic;
-        
-        Jacbi((size_frame-1)*15+(j-1)*size_frame*2+(n-1)*2+1:(size_frame-1)*15+(j-1)*size_frame*2+n*2,size_frame*15+(j-1)*3+1:size_frame*15+j*3)=H_dz_dG_p_f_k*precision_pic;
-        
-
-
     end
-
-
+    
+    
 end
+
+
 
 
 
