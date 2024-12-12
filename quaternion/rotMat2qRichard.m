@@ -7,10 +7,13 @@ vY=R(2,:);
 
 qX = qUtoV(vX,[1,0,0]);
 
-
-
 y= qMultiVec(vY, qX);
-qY = qUtoV(y,[0,1,0]);
+y=y/norm(y);
+if (y(2)+1)==0
+    qY=[0,1,0,0];
+else
+    qY = qUtoV(y,[0,1,0]);
+end
 
 qx=[-qX(1),qX(2:4)];
 qy=[-qY(1),qY(2:4)];

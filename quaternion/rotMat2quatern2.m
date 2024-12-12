@@ -1,6 +1,7 @@
 function q = rotMat2quatern2(R)  
     %wiki URL: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#cite_note-5
     % paper URL: http://arc.aiaa.org/doi/pdf/10.2514/2.4654
+    %有问题
     [row col numR] = size(R);
     q = zeros(numR, 4);
 	K = zeros(4,4);    

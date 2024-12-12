@@ -1,7 +1,7 @@
 function  q=getInitQuaternionfromAcc_zfront(acc)
 
 
-
+%有问题
 
 norm_acc=norm([acc(1),acc(2),acc(3)]);
 

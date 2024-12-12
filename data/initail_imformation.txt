@@ -1,17 +1,28 @@
-num_measurements:428, system_size:198, num_features:64, have_stereo:0
-[init-d]: system of 428 measurement x 198 states created (64 features, mono)
-[ INFO] [1733884293.249486401]: Matrix has been written to A.txt
-[ INFO] [1733884293.250419385]: Matrix has been written to b.txt
-[init-d]: velocity in I0 was -0.689,0.215,-0.244 and |v| = 0.7616
-[ INFO] [1733884293.264366941]: Matrix has been written to x_hat.txt
-[init-d]: gravity in I0 was 8.326,-0.231,-5.183 and |g| = 9.8100
-[TIME]: 0.0014 seconds total (735.8 hz, 0.50 ms behind)
-[init-d]: 26 iterations | 6 states, 64 feats (64 valid) | 303 param and 527 res | cost 3.7190e+02 => 6.4693e+01
-[init]: successful initialization in 0.0566 seconds
-[init]: orientation = 0.8026, -0.1106, 0.5802, 0.0839
-[init]: bias gyro = -0.0034, 0.0215, 0.0738
-[init]: velocity = 0.6621, 1.3505, -0.1058
-[init]: bias accel = -0.0184, -0.0714, 0.0457
+num_measurements:430, system_size:180, num_features:58, have_stereo:0
+[init-d]: system of 430 measurement x 180 states created (58 features, mono)
+[ INFO] [1733990064.326181683]: Matrix has been written to A.txt
+[ INFO] [1733990064.327184616]: Matrix has been written to b.txt
+[TIME]: 0.0013 seconds total (752.4 hz, 0.50 ms behind)
+[init-d]: velocity in I0 was -0.764,0.092,-0.604 and |v| = 0.9781
+[ INFO] [1733990064.338730125]: Matrix has been written to x_hat.txt
+[init-d]: gravity in I0 was 8.830,-0.984,-4.160 and |g| = 9.8100
+	R_GtoI0:   0.426198 -0.0907159    0.90007
+		-0  -0.994959   -0.10028
+	   0.90463   0.042739   -0.42405
+gravity_inI0  8.82969
+-0.983742
+ -4.15993
+[init-d]: 23 iterations | 7 states, 58 feats (58 valid) | 301 param and 544 res | cost 3.8278e+02 => 7.9279e+01
+[init]: successful initialization in 0.0655 seconds
+[init]: orientation = 0.7925, -0.1685, 0.5743, 0.1171
+[init]: bias gyro = -0.0037, 0.0219, 0.0744
+[init]: velocity = 0.7513, 1.3016, -0.0892
+[init]: bias accel = -0.0048, -0.0853, 0.0886
 [init]: position = 0.0000, 0.0000, 0.0000
 
 
+
+poseIinM.pose.pose.orientation.x = state->_imu->quat()(0);
+poseIinM.pose.pose.orientation.y = state->_imu->quat()(1);
+poseIinM.pose.pose.orientation.z = state->_imu->quat()(2);
+poseIinM.pose.pose.orientation.w = state->_imu->quat()(3);
