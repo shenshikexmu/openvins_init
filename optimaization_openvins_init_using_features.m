@@ -100,7 +100,7 @@ num_measurements=data{11};
 E=zeros(num_measurements*2+(size_frame-1)*15,1);
 Jacbi=zeros(num_measurements*2+(size_frame-1)*15,size_frame*15+size_ids*3);
 
-
+%  Factor_ImuCPIv1
 for i=2:size_frame
     
     %a0(i*15+1:i*15+15,1)=[angleAxistemp;Ptemp;Vtemp;Batemp;Bgtemp];
@@ -133,10 +133,8 @@ for i=2:size_frame
 end
     
 
+% Factor_ImageReprojCalib
 precision_pic=1;
-
-
-
 num_measurements=0;
 
 all_ids = keys(features);
@@ -190,7 +188,7 @@ for i = 1:length(all_ids)
     
 end
 
-
+% Factor_GenericPrior
 
 
 

@@ -201,8 +201,15 @@ x=M\b;
 
 I0_v_I0=x1(num_features*3+1:num_features*3+3,1);
 
-G_I0_q=getInitQuaternionfromAcc_xfront(I0_g);
-G_I0_R=quatern2rotMat(G_I0_q);
+%G_I0_q=getInitQuaternionfromAcc_xfront(I0_g);
+%G_I0_R=quatern2rotMat(G_I0_q);
+
+G_I0_R = gram_schmidt(I0_g)';
+G_I0_q = rotMat2qRichard(G_I0_R);
+
+
+
+
 
 for i=1:num_features
 
@@ -243,7 +250,7 @@ drawProjection(x_I_k_opti,G_p_f_opti,camR,camT);
 %                 compare
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-isCompare=1;
+isCompare=0;
 
 if isCompare
 
