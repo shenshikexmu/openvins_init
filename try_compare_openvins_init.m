@@ -1,12 +1,12 @@
-%clear all
-clc
+% clear all
+% clc
 addpath('shanzhaiCV');
 addpath('yamlMatlab');
 addpath('repropagate');
 addpath('quaternion');
 
 global matlab_or_octave
-matlab_or_octave=0; 
+matlab_or_octave=1; 
 
 
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
@@ -201,8 +201,8 @@ x=M\b;
 
 I0_v_I0=x1(num_features*3+1:num_features*3+3,1);
 
-%G_I0_q=getInitQuaternionfromAcc_xfront(I0_g);
-%G_I0_R=quatern2rotMat(G_I0_q);
+% G_I0_q=getInitQuaternionfromAcc_xfront(I0_g);
+% G_I0_R=quatern2rotMat(G_I0_q);
 
 G_I0_R = gram_schmidt(I0_g)';
 G_I0_q = rotMat2qRichard(G_I0_R);

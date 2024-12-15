@@ -25,6 +25,17 @@ for j=1:size_ids
 end
 
 
+prior_Info=eye(10);
+
+prior_Info(1:4,1:4)=prior_Info(1:4,1:4)*1/(1e-5)^2;           % 4dof unobservable yaw and position
+prior_Info(5:7,5:7)=prior_Info(5:7,5:7)*1/(0.05)^2;           % bias_g prior
+prior_Info(8:10,8:10)=prior_Info(8:10,8:10)*1/(0.10)^2;       % bias_a prior
+
+prior_grad=zeros(10,1);
+
+x_lin=x_I_k(:,1);
+
+
 data{1}=imuPropagate;
 data{2}=features;
 data{3}=map_camera_times;
@@ -36,20 +47,23 @@ data{8}=size_frame;
 data{9}=size_ids;
 data{10}=[0;0;1]*gravity_mag;
 data{11}=num_measurements;
+data{12}=prior_Info;
+data{13}=prior_grad;
+data{14}=x_lin;
 % data{10}=x_I_k;
 % data{11}=G_p_f;
 
 
 % options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
 % 
-% [a,resnorm]=lsqnonlin(@loss_function,a0,[],[],options,data);
-% 
+% [a,resnorm]=lsqnonlin(@loss_function_features,a0,[],[],options,data);
+
 
 
 fprintf('global optimization:\n');
 TolX=1e-6;
 TolFun=1e-6;
-MaxIter=40;
+MaxIter=100;
 ConstantValue=[4,5,6];
 [a,resnorm]=Optimize_my_LM2(@loss_function_features,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
 
@@ -95,10 +109,13 @@ size_frame=data{8};
 size_ids=data{9};
 gravity=data{10};
 num_measurements=data{11};
+prior_Info=data{12};
+prior_grad=data{13};
+x_lin=data{14};
 
 
-E=zeros(num_measurements*2+(size_frame-1)*15,1);
-Jacbi=zeros(num_measurements*2+(size_frame-1)*15,size_frame*15+size_ids*3);
+E=zeros(num_measurements*2+(size_frame-1)*15+size(prior_grad,1),1);
+Jacbi=zeros(num_measurements*2+(size_frame-1)*15+size(prior_grad,1),size_frame*15+size_ids*3);
 
 %  Factor_ImuCPIv1
 for i=2:size_frame
@@ -189,6 +206,45 @@ for i = 1:length(all_ids)
 end
 
 % Factor_GenericPrior
+% Comes from the form: cost = A * (x - x_lin) + b
+llt0fI = chol(prior_Info, 'lower');
+sqrtI=llt0fI';
+b=sqrtI*prior_grad;
+
+a1=a(1:15,1);
+P1=a1(4:6,1);
+angleAxis1=a1(1:3,1);
+Q1=angleAxis2Quaternion(angleAxis1)';
+%V1=a1(7:9,1);
+Bg1=a1(10:12,1);
+Ba1=a1(13:15,1);
+
+Q_lin=x_lin(1:4,1);
+ez=[0;0;1];
+
+theta_err=quaternionToAngleAxis(quaternProd(invQuaternion(Q_lin),Q1));
+
+res_Q1=sqrtI(1,1)*ez'*theta_err+b(1);
+
+dq1_dtheta1=LeftMultiply( quaternProd(invQuaternion(Q_lin) , Q1)  );
+
+J_Q1=sqrtI(1,1)*ez'*dq1_dtheta1(2:4,2:4);
+
+res_P1=sqrtI(2:4,2:4)*(P1-x_lin(5:7,1))+b(2:4);
+J_P1=sqrtI(2:4,2:4)*eye(3);
+
+res_Bg=sqrtI(5:7,5:7)*(Bg1-x_lin(11:13,1))+b(5:7);
+J_Bg=sqrtI(5:7,5:7)*eye(3);
+
+res_Ba=sqrtI(8:10,8:10)*(Ba1-x_lin(14:16,1))+b(8:10);
+J_Ba=sqrtI(8:10,8:10 )*eye(3);
+
+E(num_measurements*2+(size_frame-1)*15+1:num_measurements*2+(size_frame-1)*15+size(prior_grad,1),1)=[res_Q1;res_P1;res_Bg;res_Ba] ;
+
+Jacbi(num_measurements*2+(size_frame-1)*15+1:num_measurements*2+(size_frame-1)*15+1,1:3)=J_Q1;
+Jacbi(num_measurements*2+(size_frame-1)*15+2:num_measurements*2+(size_frame-1)*15+4,4:6)=J_P1;
+Jacbi(num_measurements*2+(size_frame-1)*15+5:num_measurements*2+(size_frame-1)*15+7,10:12)=J_Bg;
+Jacbi(num_measurements*2+(size_frame-1)*15+8:num_measurements*2+(size_frame-1)*15+10,13:15)=J_Ba;
 
 
 

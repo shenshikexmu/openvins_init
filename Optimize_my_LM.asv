@@ -62,17 +62,11 @@ while (~found && k<MaxIter+1)
         rho=(Ek'*Ek-Ek_new'*Ek_new)/(-L0-L_delta);
 
         rho=(Ek'*Ek-Ek_new'*Ek_new);
-
-%         if k==30
-%             Jacobibi=Get_Jacobi(Loss_fun,plus_fun,xk_new,data,ConstantValue);
-%             a=10;
-%         end
-
         
         
         if rho>0
             
-            fprintf('%7d  %18f %12f %15.8f \n',k, Ek'*Ek, Lambda, norm(delta_x));
+            fprintf('%7d  %18d %12f %15.8f \n',k, Ek'*Ek, Lambda, norm(delta_x));
             k=k+1;
             
             found=(norm(Ek'*Ek-Ek_new'*Ek_new)<=TolFun);  
@@ -94,8 +88,8 @@ end
 
 % xk=xk_plus_delta_x(plus_fun,xk,delta_x,ConstantValue,data); %xk=xk+delta_x';
 % Ek=Loss_fun(xk,data);
-% fprintf('%7d  %18f %12f %15.8f \n',k, Ek'*Ek, Lambda, norm(delta_x));
-% 
+% fprintf('%7d  %18d %12f %15.8f \n',k, Ek'*Ek, Lambda, norm(delta_x));
+
 
 a=xk;
 
@@ -219,7 +213,7 @@ end
 
 function Jacobi=Get_Jacobi(Loss_fun,plus_fun,xk,data,ConstantValue)
 
-scale=1e-5;
+scale=1e-3;
 
 Ek=Loss_fun(xk,data);
 

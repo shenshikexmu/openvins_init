@@ -83,9 +83,9 @@ while (~found && k<MaxIter+1)
 end
 
 
-% xk=xk+delta_x';
+% xk=xk_plus_delta_x(plus_fun,xk,delta_x,ConstantValue,data); %xk=xk+delta_x';
 % Ek=Loss_fun(xk,data);
-% fprintf('Iterations: %d, Residual: %d, Step: %d \n',k,Ek'*Ek,norm(delta_x));
+% fprintf('%7d  %18f %12f %15.8f \n',k, Ek'*Ek, mou, norm(delta_x));
 
 
 
