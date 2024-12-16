@@ -1,4 +1,4 @@
-function  [a,resnorm]=Optimize_my_LM(Loss_fun,plus_fun,a0,data,TolX,TolFun,MaxIter,ConstantValue)
+function  [a,resnorm]=Optimize_my_GN(Loss_fun,plus_fun,a0,data,TolX,TolFun,MaxIter,ConstantValue)
 
 % author  Zhang Xin
 
@@ -11,8 +11,6 @@ len_uncertain=length(a0)-length(ConstantValue);
 
 
 
-
-Lambda=1e-2;
 xk=a0;
 
 
@@ -29,10 +27,13 @@ found=logical(norm(g)<=TolFun);
 
 
 k=0;
+Lambda=1;
 fprintf('%12s  %12s %12s %12s \n','Iterations','Residual','Lambda','Step');
 while (~found && k<MaxIter+1)
     
-    delta_x=-(Jacobi'*Jacobi+Lambda*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain))\Jacobi'*Ek;  
+    delta_x=-(Jacobi'*Jacobi)\Jacobi'*Ek;  
+    
+    delta_x=delta_x*Lambda;
   
     %delta_x=-(Jacobi'*Jacobi+sqrt(Lambda)*eye(len_uncertain))\Jacobi'*Ek;  
 
@@ -40,54 +41,38 @@ while (~found && k<MaxIter+1)
 %     P=Jacobi'*Ek;
 %     delta_x=schur_complement(M,P,data);
 
-
     
-    %delta_x=-[Jacobi;(Lambda)*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain)]\[Ek;zeros(len_uncertain,1)]; 
+    xk_new=xk_plus_delta_x(plus_fun,xk,delta_x,ConstantValue,data);
 
-    %delta_x=-inv(Jacobi'*Jacobi+Lambda*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain))*Jacobi'*Ek;
+    [Ek_new,Jacobi_new]=Loss_fun(xk_new,data);
+    Jacobi_new=change_Jacobi_using_ConstantValue(Jacobi_new,ConstantValue);
 
     
     if (norm(delta_x)<=TolX*(norm(xk)+TolX))
         found=true;
 
     else
-        xk_new=xk_plus_delta_x(plus_fun,xk,delta_x,ConstantValue,data);%xk_new=xk+delta_x';
-        
-        %Ek_new=Loss_fun(xk_new,data);
-
-        [Ek_new,Jacobi_new]=Loss_fun(xk_new,data);
-        Jacobi_new=change_Jacobi_using_ConstantValue(Jacobi_new,ConstantValue);
-
-
-        L0=delta_x'*Jacobi'*Ek;
-        L_delta=delta_x'*Jacobi'*Jacobi*delta_x;
-        rho=(Ek'*Ek-Ek_new'*Ek_new)/(-L0-L_delta);
-
-        rho=(Ek'*Ek-Ek_new'*Ek_new);
-
-%         if k==30
-%             Jacobibi=Get_Jacobi(Loss_fun,plus_fun,xk_new,data,ConstantValue);
-%             a=10;
-%         end
-
         
         
-        if rho>0
-            
+        if (Ek'*Ek-Ek_new'*Ek_new)>0
+
             fprintf('%7d  %18f %12f %15.8f \n',k, Ek'*Ek, Lambda, norm(delta_x));
             k=k+1;
             
-            found=(norm(Ek'*Ek-Ek_new'*Ek_new)<=TolFun);  
             xk=xk_new;
             Jacobi=Jacobi_new;
             Ek=Ek_new;
-       
-            Lambda=Lambda/10;
-        
+            
+            Lambda=1;
+            
         else
-            Lambda=Lambda*10;
+            
+            Lambda=Lambda*0.5;
             
         end
+        
+       
+
   
     end
 

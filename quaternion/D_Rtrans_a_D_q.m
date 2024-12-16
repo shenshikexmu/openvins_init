@@ -1,6 +1,6 @@
 function dRtrans_a_dq=D_Rtrans_a_D_q(q,a)
 
-% the derivative of R(q)*a with respect to q 
+% the derivative of R(q)'*a with respect to q 
 % q(1) is Q.w
     
 w=q(1);

@@ -65,7 +65,7 @@ TolX=1e-6;
 TolFun=1e-6;
 MaxIter=100;
 ConstantValue=[4,5,6];
-[a,resnorm]=Optimize_my_LM2(@loss_function_features,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
+[a,resnorm]=Optimize_my_GN(@loss_function_features,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
 
 
 

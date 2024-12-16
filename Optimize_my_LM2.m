@@ -30,13 +30,13 @@ k=0;
 fprintf('%12s  %12s %12s %12s \n','Iterations','Residual','Lambda','Step');
 while (~found && k<MaxIter+1)
     
-    %delta_x=-(Jacobi'*Jacobi+mou*eye(len_uncertain))\Jacobi'*Ek;     
+    delta_x=-(Jacobi'*Jacobi+sqrt(mou)*eye(len_uncertain))\Jacobi'*Ek;     
     
-    delta_x=-[Jacobi;sqrt(mou)*eye(len_uncertain)]\[Ek;zeros(len_uncertain,1)];  
+    %delta_x=-[Jacobi;sqrt(mou)*eye(len_uncertain)]\[Ek;zeros(len_uncertain,1)];  
 
-    %     M=-(Jacobi'*Jacobi+Lambda*0.001*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain));
-%     P=Jacobi'*Ek;
-%     delta_x=schur_complement(M,P,data);
+%    M=-(Jacobi'*Jacobi+mou*eye(len_uncertain));
+%    P=Jacobi'*Ek;
+%    delta_x=schur_complement(M,P,data);
 
     
     if (norm(delta_x)<=TolX*(norm(xk)+TolX))
