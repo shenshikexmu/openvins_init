@@ -83,6 +83,7 @@ while (~found && k<MaxIter+1)
             Ek=Ek_new;
        
             Lambda=Lambda/10;
+            
         
         else
             Lambda=Lambda*10;

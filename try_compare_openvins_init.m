@@ -47,7 +47,7 @@ gravity_mag= 9.81;
 global ACC_N GYR_N ACC_W GYR_W 
 
 
-ACC_N=2.0000e-3;                     %bao
+ACC_N=2.0000e-3;                     
 GYR_N=1.6968e-04;
 ACC_W=3.0000e-3;
 GYR_W=1.9393e-05;
@@ -208,9 +208,6 @@ G_I0_R = gram_schmidt(I0_g)';
 G_I0_q = rotMat2qRichard(G_I0_R);
 
 
-
-
-
 for i=1:num_features
 
     I0_p_f(:,i)=x1(i*3-2:i*3);
@@ -257,8 +254,6 @@ if isCompare
     M=importdata('./data/A.txt');
 
     b=importdata('./data/b.txt');
-
-    a=10;
 
     A1=M(:,1:num_features*3+3);
     A2=M(:,num_features*3+4:num_features*3+6);

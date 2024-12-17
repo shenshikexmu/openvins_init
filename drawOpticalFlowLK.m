@@ -1,4 +1,4 @@
-function  []=drawOpticalFlowLK(img1,img2,pts1,pts2,n1,n2)
+function  drawOpticalFlowLK(img1,img2,pts1,pts2,n1,n2)
 
 
 

@@ -1,0 +1,33 @@
+num_measurements:362, system_size:165, num_features:53, have_stereo:0
+[init-d]: system of 362 measurement x 165 states created (53 features, mono)
+[ INFO] [1734396773.161022028]: Matrix has been written to A.txt
+[ INFO] [1734396773.161958689]: Matrix has been written to b.txt
+[init-d]: velocity in I0 was -0.770,0.185,-0.437 and |v| = 0.9045
+[ INFO] [1734396773.170435902]: Matrix has been written to x_hat.txt
+[init-d]: gravity in I0 was 8.439,-0.396,-4.986 and |g| = 9.8100
+R_GtoI0:   0.508674 -0.0347833   0.860256
+        -0  -0.999184 -0.0404006
+  0.860959  0.0205508  -0.508259
+gravity_inI0 8.43911
+-0.39633
+-4.98602
+iter      cost      cost_change  |gradient|   |step|    tr_ratio  tr_radius  ls_iter  iter_time  total_time
+   0  1.556761e+04    0.00e+00    1.28e+05   0.00e+00   0.00e+00  1.00e+04        0    2.55e-04    5.20e-04
+   1  8.013993e+03    7.55e+03    7.03e+04   2.98e+00   6.85e-01  1.00e+04        1    2.84e-04    8.17e-04
+   2  2.092847e+03    5.92e+03    2.51e+04   5.37e+00   7.89e-01  3.00e+04        1    1.98e-04    1.02e-03
+   3  2.879306e+03   -7.86e+02    0.00e+00   4.92e+00  -4.05e-01  1.50e+04        1    1.47e-04    1.17e-03
+   4  2.879306e+03   -7.86e+02    0.00e+00   4.92e+00  -4.05e-01  7.50e+03        0    1.56e-05    1.19e-03
+   5  2.879306e+03   -7.86e+02    0.00e+00   4.92e+00  -4.05e-01  3.75e+03        0    1.47e-05    1.21e-03
+   6  1.026113e+03    1.07e+03    2.09e+04   3.45e+00   5.73e-01  3.75e+03        0    6.18e-05    1.27e-03
+   7  2.815987e+02    7.45e+02    7.14e+03   2.14e+00   8.50e-01  6.40e+03        1    1.83e-04    1.46e-03
+   8  1.501602e+02    1.31e+02    1.44e+01   1.01e-01   1.00e+00  6.40e+03        1    1.86e-04    1.65e-03
+   9  1.501584e+02    1.83e-03    1.14e-01   1.76e-03   9.20e-01  6.40e+03        1    1.87e-04    1.84e-03
+[init-d]: 10 iterations | 6 states, 53 feats (53 valid) | 270 param and 461 res | cost 1.5568e+04 => 1.5016e+02
+[TIME]: 0.0015 seconds total (648.1 hz, 3.00 ms behind)
+[init]: successful initialization in 0.0515 seconds
+[init]: orientation = 0.8008, -0.1491, 0.5716, 0.0986
+[init]: bias gyro = -0.0045, 0.0253, 0.0744
+[init]: velocity = 0.6344, 1.3809, -0.1016
+[init]: bias accel = 0.0431, -0.1495, 0.1919
+[init]: position = 0.0000, 0.0000, 0.0000
+

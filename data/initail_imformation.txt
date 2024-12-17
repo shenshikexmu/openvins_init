@@ -1,10 +1,10 @@
 num_measurements:430, system_size:180, num_features:58, have_stereo:0
 [init-d]: system of 430 measurement x 180 states created (58 features, mono)
-[ INFO] [1734076368.010373984]: Matrix has been written to A.txt
-[ INFO] [1734076368.011393610]: Matrix has been written to b.txt
-[TIME]: 0.0014 seconds total (738.6 hz, 1.00 ms behind)
+[TIME]: 0.0007 seconds total (1383.1 hz, 1.00 ms behind)
+[ INFO] [1734402574.116610921]: Matrix has been written to A.txt
+[ INFO] [1734402574.117806056]: Matrix has been written to b.txt
 [init-d]: velocity in I0 was -0.764,0.092,-0.604 and |v| = 0.9781
-[ INFO] [1734076368.023742544]: Matrix has been written to x_hat.txt
+[ INFO] [1734402574.129399862]: Matrix has been written to x_hat.txt
 [init-d]: gravity in I0 was 8.830,-0.984,-4.160 and |g| = 9.8100
 R_GtoI0:   0.426198 -0.0907159    0.90007
         -0  -0.994959   -0.10028
@@ -13,17 +13,19 @@ gravity_inI0  8.82969
 -0.983742
  -4.15993
 iter      cost      cost_change  |gradient|   |step|    tr_ratio  tr_radius  ls_iter  iter_time  total_time
-   0  1.204277e+04    0.00e+00    9.64e+04   0.00e+00   0.00e+00  1.00e+04        0    2.69e-04    5.70e-04
-   1  5.273309e+03    6.77e+03    4.08e+04   2.62e+00   8.68e-01  3.00e+04        1    3.60e-04    9.45e-04
-   2  2.799334e+03    2.47e+03    1.90e+04   6.35e+00   5.22e-01  3.00e+04        1    2.50e-04    1.20e-03
-   3  8.081108e+02    1.99e+03    1.53e+04   2.92e+00   8.42e-01  3.00e+04        1    2.27e-04    1.43e-03
-   4  4.344730e+02    3.74e+02    6.42e+01   2.13e-01   1.00e+00  3.00e+04        1    2.21e-04    1.66e-03
-   5  4.344393e+02    3.37e-02    1.12e+00   3.55e-03   1.01e+00  3.00e+04        1    2.20e-04    1.88e-03
-[init-d]: 6 iterations | 7 states, 58 feats (58 valid) | 301 param and 544 res | cost 1.2043e+04 => 4.3444e+02
-[init]: successful initialization in 0.0631 seconds
-[init]: orientation = 0.7969, -0.1646, 0.5685, 0.1213
-[init]: bias gyro = -0.0046, 0.0239, 0.0750
-[init]: velocity = 0.7697, 1.3348, -0.1111
-[init]: bias accel = 0.0501, -0.1687, 0.1942
+   0  1.204277e+04    0.00e+00    9.64e+04   0.00e+00   0.00e+00  1.00e+04        0    4.74e-04    7.65e-04
+   1  4.413773e+03    7.63e+03    2.09e+04   3.93e+00   9.06e-01  2.15e+04        1    3.06e-04    1.08e-03
+   2  2.531291e+03    1.88e+03    1.17e+04   2.71e+00   9.55e-01  6.45e+04        1    2.29e-04    1.32e-03
+   3  1.180156e+03    1.35e+03    6.37e+03   2.35e+00   9.53e-01  1.94e+05        1    2.15e-04    1.54e-03
+   4  5.860024e+02    5.94e+02    7.65e+03   2.04e+00   8.81e-01  3.47e+05        1    2.12e-04    1.75e-03
+   5  4.428655e+02    1.43e+02    1.68e+03   8.91e-01   9.64e-01  1.04e+06        1    2.18e-04    1.97e-03
+   6  4.346162e+02    8.25e+00    2.12e+02   3.34e-01   9.84e-01  3.13e+06        1    2.24e-04    2.20e-03
+   7  4.344406e+02    1.76e-01    1.37e+01   7.65e-02   9.98e-01  9.38e+06        1    2.14e-04    2.42e-03
+[init-d]: 8 iterations | 7 states, 58 feats (58 valid) | 301 param and 544 res | cost 1.2043e+04 => 4.3444e+02
+[init]: successful initialization in 0.0711 seconds
+[init]: orientation = 0.7969, -0.1646, 0.5685, 0.1212
+[init]: bias gyro = -0.0046, 0.0238, 0.0750
+[init]: velocity = 0.7700, 1.3349, -0.1105
+[init]: bias accel = 0.0494, -0.1661, 0.1937
 [init]: position = 0.0000, 0.0000, 0.0000
 
