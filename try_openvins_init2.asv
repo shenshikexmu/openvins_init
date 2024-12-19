@@ -104,18 +104,17 @@ for n=1:m
         
         pts{n}=[];
         ids{n}=[];
-        %[pts{n},ids{n}]=perform_detection_monocular(imgpyr{n},mask{n},pts{n},ids{n});
-        load('matlab_data.mat');
-        for s=1:size(pts{n},1)
-            npt_l=undistort_cv(pts{n}(s,1:2)-[1,1], camK,camD);   
-            features=update_feature(features, ids{n}(s,1), timestamp, cam_id, pts{n}(s,1), pts{n}(s,2), npt_l(1,1), npt_l(1,2));
-        end
+        [pts{n},ids{n}]=perform_detection_monocular(imgpyr{n},mask{n},pts{n},ids{n});
+%         for i=1:size(pts{n},1)
+%             npt_l=undistort_cv(pts{n}(i,1:2)-[1,1], camK,camD);   
+%             features=update_feature(features, ids{n}(i,1), timestamp, cam_id, pts{n}(i,1), pts{n}(i,2), npt_l(1,1), npt_l(1,2));
+%         end
         continue;   
     end
     
     
     
-   %[pts{n-1},ids{n-1}]=perform_detection_monocular(imgpyr{n-1}, mask{n-1}, pts{n-1},ids{n-1});
+   [pts{n-1},ids{n-1}]=perform_detection_monocular(imgpyr{n-1}, mask{n-1}, pts{n-1},ids{n-1});
    
 
    
