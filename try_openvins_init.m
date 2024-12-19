@@ -134,6 +134,9 @@ for n=1:m
     pts{n}=refine(pts{n},mask);
     pts_n{n}=refine(pts_n{n},mask);
     ids{n}=ids{n-1};
+
+
+    %drawOpticalFlowLK(imgpyr{1}{1},imgpyr{n}{1},pts{1},pts{n},1,n);
     
     if n==m
         save(['pts_ids_',num2str(i),'_',num2str(n),'.mat'],'pts','ids','pts_n');
