@@ -27,20 +27,83 @@ else
     size_close = [floor(rows/min_px_dist),floor(cols/min_px_dist)];
 
     grid_2d_close = cast(zeros(size_close(1), size_close(2), 1),dataType);
-
+    
+    size_x=cols/grid_x;
+    
+    size_y=rows/grid_y;
+    
     size_grid = [grid_y,grid_x];
 
     grid_2d_grid = cast(zeros(size_grid(1),size_grid(2),1),dataType);
 
     mask0_updated = mask0;
 
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 没有写
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
     if size(pts0,1)>0
 
-        for i=1:size(pts0,1)
-        
+        edge = 10;
+        validIdx = true(size(pts0,1), 1); % initial valid Index
+
+        for i = 1:size(pts0,1)
+            %Get current left keypoint, check that it is in bounds
+            kpt = pts0(i, :);
+            x = round(kpt(1));
+            y = round(kpt(2));
+
+            if x < edge || x >= cols - edge || y < edge || y >= rows - edge
+                validIdx(i) = false;
+                continue;
+            end
+            
+            % Calculate mask coordinates for close points
+            x_close = floor(kpt(1) / min_px_dist);
+            y_close = floor(kpt(2) / min_px_dist);
+            
+            if x_close < 0 || x_close >= size_close(2) || y_close < 0 || y_close >= size_close(1)
+                validIdx(i) = false;
+                continue;
+            end
+            
+            % Calculate what grid cell this feature is in
+            x_grid = floor(kpt(1) / size_x);
+            y_grid = floor(kpt(2) / size_y);
+            
+            if x_grid < 0 || x_grid >= size_grid(2) || y_grid < 0 || y_grid >= size_grid(1)
+                validIdx(i) = false;
+                continue;
+            end
+            
+            % Check if this keypoint is near another point
+            if grid_2d_close(y_close , x_close ) > 127
+                validIdx(i) = false;
+                continue;
+            end
+            
+            % Now check if it is in a mask area or not
+            % NOTE: mask has max value of 255 (white) if it should be
+            if mask0(y , x ) > 127
+                validIdx(i) = false;
+                continue;
+            end
+            
+            %  Else we are good, move forward to the next point
+            grid_2d_close(max(floor(y_close),1) , max(floor(x_close),1) ) = 255;
+            if grid_2d_grid(max(floor(y_grid),1) , max(floor(x_grid),1) ) < 255
+                grid_2d_grid(max(floor(y_grid),1), max(floor(x_grid),1)) = grid_2d_grid(max(floor(y_grid),1) , max(floor(x_grid),1) ) + 1;
+            end
+            
+            %  Append this to the local mask of the image
+            pt1 = [x - min_px_dist, y - min_px_dist];
+            pt2 = [x + min_px_dist, y + min_px_dist];
+            
+            if pt1(1) >= 1 && pt1(2) >= 1 && pt2(1) <= cols && pt2(2) <= rows
+                mask0_updated(pt1(2):pt2(2), pt1(1):pt2(1)) = 255;
+            end
         end
+
+        pts0 = pts0(validIdx, :);
+        ids0 = ids0(validIdx);
 
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -79,7 +142,7 @@ else
 
     pts0_ext=perform_griding(img0pyr{1}, mask0_updated, valid_locs, num_features,  grid_x,  grid_y,  threshold, 1) ;
 
-    %save('perform_detection_monocular.mat');
+    save('perform_detection_monocular.mat');
 
 end
 

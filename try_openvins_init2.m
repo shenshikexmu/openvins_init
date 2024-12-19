@@ -6,7 +6,7 @@ addpath('repropagate');
 addpath('quaternion');
 
 global matlab_or_octave
-matlab_or_octave=0; 
+matlab_or_octave=1; 
 
     
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
@@ -114,20 +114,21 @@ for n=1:m
     
     
     
-    [pts{n-1},ids{n-1}]=perform_detection_monocular(imgpyr{n-1}, mask{n-1}, pts{n-1},ids{n-1});
+%    [pts{n-1},ids{n-1}]=perform_detection_monocular(imgpyr{n-1}, mask{n-1}, pts{n-1},ids{n-1});
+%    
+%
+%    
+%    pts{n}=pts{n-1};
+%    
+%    [pts{n-1}, pts{n}, mask_out]=perform_matching(imgpyr{n-1}, imgpyr{n},  pts{n-1}, pts{n}, 0, 0);
+%    
+%    
     
-
+    
     
     pts{n}=pts{n-1};
     
-    [pts{n-1}, pts{n}, mask_out]=perform_matching(imgpyr{n-1}, imgpyr{n},  pts{n-1}, pts{n}, 0, 0);
-    
-    
-    
-    
-    
-    
-        criteria.max_iters=30;
+    criteria.max_iters=30;
     criteria.epsilon=0.01;
     cv_OPTFLOW_USE_INITIAL_FLOW=1;
     
@@ -138,6 +139,9 @@ for n=1:m
     pts{n-1}=refine(pts{n-1},status);
     ids{n-1}=refine(ids{n-1},status);
     pts{n}=refine(pts{n},status);
+    
+    
+    drawOpticalFlowLK(imgpyr{1}{1},imgpyr{n}{1},pts{1},pts{n},1,n);
 
     pts_n{n-1}=zeros(size(pts{n-1},1),2);
     pts_n{n}=zeros(size(pts{n},1),2);
