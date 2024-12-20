@@ -75,7 +75,7 @@ else
             end
             
             % Check if this keypoint is near another point
-            if grid_2d_close(y_close , x_close ) > 127
+            if grid_2d_close(max(floor(y_close),1) , max(floor(x_close),1)) > 127
                 validIdx(i) = false;
                 continue;
             end
@@ -142,7 +142,7 @@ else
 
     pts0_ext=perform_griding(img0pyr{1}, mask0_updated, valid_locs, num_features,  grid_x,  grid_y,  threshold, 1) ;
 
-    save('perform_detection_monocular.mat');
+    %save('perform_detection_monocular.mat');
 
 end
 

@@ -1,5 +1,5 @@
-% clear all
-% clc
+clear all
+clc
 addpath('shanzhaiCV');
 addpath('yamlMatlab');
 addpath('repropagate');
@@ -57,6 +57,7 @@ features=get_features_from_txt('./data/features.txt');
 map_camera_times = [];
 count_valid_features=0;
 num_measurements=0;
+cam_id=1;
 
 allKeys = keys(features);
 
@@ -67,9 +68,9 @@ for i = 1:length(allKeys)
     
     map_camera_ids(i,1)=feat.featid;
     
-    if ~isempty(feat.timestamps)
-        if ~ismember(feat.timestamps,map_camera_times)
-            map_camera_times = [map_camera_times; feat.timestamps];
+    if ~isempty(feat.timestamps{cam_id})
+        if ~ismember(feat.timestamps{cam_id},map_camera_times)
+            map_camera_times = [map_camera_times; feat.timestamps{cam_id}];
         end
     end
     
@@ -137,7 +138,7 @@ for i = 1:length(all_ids)
         uvs_norm=feat.uvs_norm{cam_id};
         uvs=feat.uvs{cam_id};
         
-        timestamps=feat.timestamps;
+        timestamps=feat.timestamps{cam_id};
         
         for j=1:size(timestamps,1)
             

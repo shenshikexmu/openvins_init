@@ -82,20 +82,23 @@ GYR_W=1.9393e-05;
 features=containers.Map();
 cam_id=1;
 
-i=489;
+i=1089;
 
-m=16;
+m=10;
+table_img_timestamp=zeros(m,2);
+
 for n=1:m
     
     img{n}=imread([file_cam0,'data/',datacsv_cam0{i+n-1,2}]);
     img{n}=cv_equalizeHist(img{n});
     imgpyr{n}=cv_buildOpticalFlowPyramid(img{n},win_size,pyr_levels);
     timestamp=datacsv_cam0{i+n-1,1}*10e-10;
+    table_img_timestamp(n,:)=[n,timestamp];
     mask{n}=getMask(img{n});
     
-    if (exist(['pts_ids_',num2str(i),'_',num2str(m),'.mat'])==2)   
+    if (exist(['features_',num2str(i),'_',num2str(m),'.mat'])==2)   
         if n==m           
-            load(['pts_ids_',num2str(i),'_',num2str(m),'.mat']);
+            load(['features_',num2str(i),'_',num2str(m),'.mat']);
         end 
         continue;   
     end
@@ -104,104 +107,102 @@ for n=1:m
         
         pts{n}=[];
         ids{n}=[];
-        %[pts{n},ids{n}]=perform_detection_monocular(imgpyr{n},mask{n},pts{n},ids{n});
-        load('matlab_data.mat');
-        for s=1:size(pts{n},1)
-            npt_l=undistort_cv(pts{n}(s,1:2)-[1,1], camK,camD);   
-            features=update_feature(features, ids{n}(s,1), timestamp, cam_id, pts{n}(s,1), pts{n}(s,2), npt_l(1,1), npt_l(1,2));
-        end
-        continue;   
-    end
-    
-    
-    
-   %[pts{n-1},ids{n-1}]=perform_detection_monocular(imgpyr{n-1}, mask{n-1}, pts{n-1},ids{n-1});
-   
+        [pts{n},ids{n}]=perform_detection_monocular(imgpyr{n},mask{n},pts{n},ids{n});
+  
+    else
+        
+        [pts{n-1},ids{n-1}]=perform_detection_monocular(imgpyr{n-1}, mask{n-1}, pts{n-1},ids{n-1});
 
-   
-   pts{n}=pts{n-1};
-   
-   [pts{n-1}, pts{n}, mask_out]=perform_matching(imgpyr{n-1}, imgpyr{n},  pts{n-1}, pts{n}, 0, 0);
+        pts{n}=pts{n-1};
+        ids{n}=ids{n-1};
 
+        [pts{n-1}, pts{n}, mask_out]=perform_matching(imgpyr{n-1}, imgpyr{n},  pts{n-1}, pts{n}, 0, 0);
 
-    pts{n-1}=refine(pts{n-1},mask_out);
-    ids{n-1}=refine(ids{n-1},mask_out);
-    pts{n}=refine(pts{n},mask_out);
-    
-   
-   
-    drawOpticalFlowLK(imgpyr{1}{1},imgpyr{n}{1},pts{1},pts{n},1,n);
-    
-    
-    
-    
-    criteria.max_iters=30;
-    criteria.epsilon=0.01;
-    cv_OPTFLOW_USE_INITIAL_FLOW=1;
+        pts{n}=refine(pts{n},mask_out);
+        ids{n}=refine(ids{n},mask_out);
+        pts_last_plot=refine(pts{n-1},mask_out);
 
+        %drawOpticalFlowLK(imgpyr{n-1}{1},imgpyr{n}{1},pts_last_plot,pts{n},n-1,n);
+        a=10;
 
-    pts{n}=pts{n-1};
-    
-    
-    
-    [pts{n}, status, err] = cv_calcOpticalFlowPyrLK(imgpyr{n-1}, imgpyr{n}, pts{n-1}, pts{n}, win_size, pyr_levels, criteria, cv_OPTFLOW_USE_INITIAL_FLOW);
-
-
-    %[pts{n}, status, err] = cv_calcOpticalFlowPyrLK(imgpyr{n-1}, imgpyr{n}, pts{n-1}, pts{n}, win_size, pyr_levels, criteria, cv_OPTFLOW_USE_INITIAL_FLOW);
-
-
-    pts{n-1}=refine(pts{n-1},status);
-    ids{n-1}=refine(ids{n-1},status);
-    pts{n}=refine(pts{n},status);
-    
-    
-    
-
-    pts_n{n-1}=zeros(size(pts{n-1},1),2);
-    pts_n{n}=zeros(size(pts{n},1),2);
-
-    for p=1:size(pts{n-1},1)
-        pts_n{n-1}(p,:)=undistort_cv(pts{n-1}(p,1:2)-[1,1], camK,camD);
-        pts_n{n}(p,:)=undistort_cv(pts{n}(p,1:2)-[1,1], camK,camD);
     end
 
-    [mask]=cv_findFundamentalMat(pts_n{n-1}, pts_n{n}, 'cv_FM_RANSAC', 1/max_focallength ,0.999);
+    for s=1:size(pts{n},1)
+        npt_l=undistort_cv(pts{n}(s,1:2)-[1,1], camK,camD);   
+        features=update_feature(features, ids{n}(s,1), timestamp, cam_id, pts{n}(s,1), pts{n}(s,2), npt_l(1,1), npt_l(1,2));
+    end
 
-    pts{n-1}=refine(pts{n-1},mask);
-    pts_n{n-1}=refine(pts_n{n-1},mask);
-    ids{n-1}=refine(ids{n-1},mask);
-    pts{n}=refine(pts{n},mask);
-    pts_n{n}=refine(pts_n{n},mask);
-    ids{n}=ids{n-1};
-    
     if n==m
-        save(['pts_ids_',num2str(i),'_',num2str(n),'.mat'],'pts','ids','pts_n');
+        save(['features_',num2str(i),'_',num2str(n),'.mat'],'features');
     end
-    
+
 end
 
 %%
 
+features=eliminate_1point_features(features);
+
+% frame1=9;
+% frame2=16;
+% 
+% drawOpticalFlowLK_featrues(imgpyr,features,table_img_timestamp,cam_id,cam_id,frame1,frame2);
+
+%%
+
+map_camera_times = [];
+count_valid_features=0;
+num_measurements=0;
+cam_id=1;
+
+all_ids = keys(features);
+
+for i = 1:length(all_ids)
+    id = all_ids{i}; % 获取当前键
+
+    feat = features(id);
+    
+    if ~isempty(feat.timestamps{cam_id})
+        for s=1:size(feat.timestamps{cam_id},1)
+            if ~ismember(feat.timestamps{cam_id}(s,1),map_camera_times)
+                map_camera_times = [map_camera_times; feat.timestamps{cam_id}(s,1)];
+            end
+        end
+    end
+    
+    for cam_id = 1:length(feat.uvs_norm)
+        if ~isempty(feat.uvs_norm{cam_id})          
+            num_measurements=num_measurements+size(feat.uvs_norm{cam_id},1);
+        end
+    end
+    count_valid_features=count_valid_features+1;
+end
+
+map_camera_times = unique(map_camera_times);
+map_camera_times=[map_camera_times,map_camera_times*0,map_camera_times*0];
+
+
+ for i=1:size(map_camera_times,1)
+
+    [n_frame,timestamps_new, min_gap]=find_image_frame_corresponding_timestamps(datacsv_cam0,map_camera_times(i,1));
+    map_camera_times(i,:)=[timestamps_new,n_frame, min_gap];
+
+end
+
+
 ba=[0;0;0];
 bg=[0;0;0];
 
-for n=1:m
-
-    camTimeStamp(n,1)=datacsv_cam0{i+n-1,1}*10e-10;
+for n=1:size(map_camera_times,1)
 
     if n>1
-
-        imuData_fragment{n}=get_Imu_Fragment_tc1_tc2(imuData,camTimeStamp(n-1),camTimeStamp(n));
-
+        imuData_fragment{n}=get_Imu_Fragment_tc1_tc2(imuData,map_camera_times(n-1,1),map_camera_times(n,1));
     else
-
         imuData_fragment{n}=[];
-
     end
 
     imuPropagate{n}=repropagate_VINS_Mono(imuData_fragment{n},ba,bg);
 
-    imuData_fragment_joint{n}=get_Imu_Fragment_tc1_tc2(imuData,camTimeStamp(1),camTimeStamp(n));
+    imuData_fragment_joint{n}=get_Imu_Fragment_tc1_tc2(imuData,map_camera_times(1,1),map_camera_times(n,1));
 
     imuPropagate_joint{n}=repropagate_VINS_Mono(imuData_fragment_joint{n},ba,bg);
 
@@ -212,62 +213,76 @@ end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-size_frame=14;
-size_ids=size(ids{size_frame},1);
-M0=zeros(size_ids*size_frame*2,size_ids*3+6);
-b0=zeros(size_ids*size_frame*2,1);
+num_frames=size(map_camera_times,1);
+num_features=count_valid_features;
+M=zeros(num_measurements*2,num_features*3+6);
+b=zeros(num_measurements*2,1);
 
-for i=1:size_ids%size(ids{10},1)
+num_measurements=0;
 
-    for n=1:size_frame
+all_ids = keys(features);
 
-        for s=1:size(ids{n},1)
+for i = 1:length(all_ids)
+    id = all_ids{i}; % 获取当前键
 
-             if ids{n}(s)==ids{size_frame}(i)
+    feat = features(id);
+    
+    featid=feat.featid;
 
-                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                 pts_opti{n}(i,:)=pts{n}(s,:);
-                 ids_opti{n}(i,:)=ids{n}(s,:);
-                 pts_n_opti{n}(i,:)=pts_n{n}(s,:);
-                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    map_features_ids(i,1)=featid;
+    
+    for cam_id = 1:length(feat.uvs_norm)
+        uvs_norm=feat.uvs_norm{cam_id};
+        uvs=feat.uvs{cam_id};
+        
+        timestamps=feat.timestamps{cam_id};
+        
+        for j=1:size(timestamps,1)
+            
+            num_measurements=num_measurements+1;
+     
+            camtime=timestamps(j,1);
+            
+            n=find_cam_n_from_map_camera_times(camtime,map_camera_times);
+            
+            uv_norm=uvs_norm(j,:);
+            uv=uvs(j,:);
+            
+            Gamma=[1,0,-uv_norm(1);...
+                0,1,-uv_norm(2)];
 
-                 Gamma=[1,0,-pts_n{n}(s,1);...
-                        0,1,-pts_n{n}(s,2)];
+            C_I_R=camR';
 
-                 C_I_R=camR';
+            I0_alpha_k=imuPropagate_joint{n}{1};
 
-                 I0_alpha_k=imuPropagate_joint{n}{1};
+            I0_q_k=imuPropagate_joint{n}{2};
 
-                 I0_q_k=imuPropagate_joint{n}{2};
+            Delta_T=imuPropagate_joint{n}{6};
 
-                 Delta_T=imuPropagate_joint{n}{6};
+            Ik_I0_R=quatern2rotMat(I0_q_k)';
 
-                 Ik_I0_R=quatern2rotMat(I0_q_k)';
+            M(num_measurements*2-1:num_measurements*2,i*3-2:i*3)=Gamma*C_I_R*Ik_I0_R;
 
-                 % 论文中公式（28）（29）（30）存在错误，这里计算的时候做了修改
-                 M((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,(i-1)*3+1:(i-1)*3+3)=Gamma*C_I_R*Ik_I0_R;
+            M(num_measurements*2-1:num_measurements*2,num_features*3+1:num_features*3+3)=-Gamma*C_I_R*Ik_I0_R*Delta_T;
 
-                 M((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,size_ids*3+1:size_ids*3+3)=-Gamma*C_I_R*Ik_I0_R*Delta_T;
+            M(num_measurements*2-1:num_measurements*2,num_features*3+4:num_features*3+6)=0.5*Gamma*C_I_R*Ik_I0_R*Delta_T*Delta_T;
 
-                 M((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,size_ids*3+4:size_ids*3+6)=0.5*Gamma*C_I_R*Ik_I0_R*Delta_T*Delta_T;
-
-                 b((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,1)=Gamma*camR'*camT+ Gamma*C_I_R*Ik_I0_R*I0_alpha_k;
-
-             end
-
-        end
-
+            b(num_measurements*2-1:num_measurements*2,1)=Gamma*camR'*camT+ Gamma*C_I_R*Ik_I0_R*I0_alpha_k;
+            
+        end 
+        
     end
 
 end
 
-%%
-A1=M(:,1:size_ids*3+3);
-A2=M(:,size_ids*3+4:size_ids*3+6);
+a=10;
+
+A1=M(:,1:num_features*3+3);
+A2=M(:,num_features*3+4:num_features*3+6);
 
 inv_A1A1=inv(A1'*A1);
 
-tempMatrix=eye(size_ids*size_frame*2)-A1*inv_A1A1*A1';
+tempMatrix=eye(num_measurements*2)-A1*inv_A1A1*A1';
 D=A2'*tempMatrix*A2;
 
 d=A2'*tempMatrix*b;
@@ -278,28 +293,19 @@ I0_g=inv(D-lambda*eye(3))*d;
 
 x1=-inv_A1A1*A1'*A2*I0_g+inv_A1A1*A1'*b;
 
-
 x=M\b;
 
-%%
+%SS=(M*[x1;I0_g]-b)'*(M*[x1;I0_g]-b)
 
+I0_v_I0=x1(num_features*3+1:num_features*3+3,1);
 
-I0_v_I0=x1(size_ids*3+1:size_ids*3+3,1);
+% G_I0_q=getInitQuaternionfromAcc_xfront(I0_g);
+% G_I0_R=quatern2rotMat(G_I0_q);
 
-G_I0_q=getInitQuaternionfromAcc_yfront(I0_g);
-G_I0_R=quatern2rotMat(G_I0_q);
+G_I0_R = gram_schmidt(I0_g)';
+G_I0_q = rotMat2qRichard(G_I0_R);
 
-for i=1:size_ids
-
-    I0_p_f(:,i)=x1(i*3-2:i*3);
-
-    G_p_f(:,i)=G_I0_R*I0_p_f(:,i);
-
-end
-
-
-
-for n=1:size_frame
+for n=1:num_frames
 
     I0_Ik_q=imuPropagate_joint{n}{2};
     I0_Ik_R=quatern2rotMat(I0_Ik_q);
@@ -314,172 +320,77 @@ for n=1:size_frame
     G_p_Ik=G_I0_R*I0_p_Ik;
     G_v_Ik=G_I0_R*I0_v_Ik;
 
-
-     x_I_k(:,n)=[G_Ik_q;G_p_Ik;G_v_Ik;bg;ba];
-
+    x_I_k(:,n)=[G_Ik_q;G_p_Ik;G_v_Ik;bg;ba];
 
 end
 
 
+validFeatrues = true(num_features, 1); % initial valid Index
 
+for i=1:num_features
 
-%%
+    I0_p_f(:,i)=x1(i*3-2:i*3);
+    G_p_f(:,i)=G_I0_R*I0_p_f(:,i);
 
+    feat=features(num2str(map_features_ids(i)));
 
-[x_I_k_opti,G_p_f_opti]=optimaization_openvins_init(x_I_k,G_p_f,imuPropagate,pts_opti,pts_n_opti,camK,camD,camR,camT,gravity_mag);
+    for cam_id=1:size(feat.timestamps,2)
 
+        for j=1:size(feat.timestamps{cam_id},1)
 
-%%
+            camtime=feat.timestamps{cam_id}(j,1);
 
-G_I0_q_opti=x_I_k_opti(1:4,1);
-G_I0_v=x_I_k_opti(8:10,1);
+            n=find_cam_n_from_map_camera_times(camtime,map_camera_times);
 
-I0_G_q_opti=invQuaternion(G_I0_q_opti);
-I0_G_R_opti=quatern2rotMat(I0_G_q_opti);
+            G_Ik_q=x_I_k(1:4,n);
 
-I0_g_opti=I0_G_R_opti*[0;0;1]*9.8;
+            G_p_Ik=x_I_k(5:7,n);
 
-I0_v_I0=I0_G_R_opti*G_I0_v;
+            G_Ik_R=quatern2rotMat(G_Ik_q);
 
+            G_Ik_Rcam=G_Ik_R*camR;
 
-for i=1:size(x_I_k_opti,2)
+            G_Ik_Tcam=G_p_Ik+G_Ik_R*camT;
 
-    x_I_k_opti_temp=x_I_k_opti(:,i);
+            Vtemp=G_Ik_Rcam'*(G_p_f(:,i)-G_Ik_Tcam);
 
-    G_Ik_q_opti=x_I_k_opti_temp(1:4);
-    G_Ik_p_opti=x_I_k_opti_temp(5:7);
-    G_Ik_v_opti=x_I_k_opti_temp(8:10);
+            if Vtemp(3)<0
 
-    I0_Ik_q_opti=quaternProd(I0_G_q_opti,G_Ik_q_opti);
-    I0_Ik_p_opti=I0_G_R_opti*G_Ik_p_opti;
-    I0_Ik_v_opti=I0_G_R_opti*G_Ik_v_opti;
+                validFeatrues(i,1)=false;
+                break;
+            end
 
-    I0_x_I_k_opti(:,i)=[I0_Ik_q_opti;I0_Ik_p_opti;I0_Ik_v_opti;x_I_k_opti_temp(11:16)];
-
-end
-
-I0_p_f_opti=I0_G_R_opti*G_p_f_opti;
-
-x_opti=[];
-
-for i=1:size(I0_p_f_opti,2)
-
-    x_opti(i*3-2:i*3,1)=I0_p_f_opti(:,i);
-
-end
-
-x_opti=[x_opti;I0_x_I_k_opti(8:10,1);I0_g_opti];
-
-SSS=M*x_opti-b;
-
-SS=M*x-b;
-%%
-
-%nnn=6;
-%
-%P1=I0_p_f_opti(:,nnn)
-%
-%
-%vvv=camR'*(P1-camT)
-%
-%vvv_norm=vvv/vvv(3);
-%
-%uv_dist = distort_cv(vvv_norm(1:2), camK,camD)
-%
-%
-%
-%pts_opti{1}(nnn,:)
-%                
-%
-%                 
-%
-%Gamma=[1,0,-pts_n_opti{1}(nnn,1);...
-%       0,1,-pts_n_opti{1}(nnn,2)]
-%
-%Gamma*vvv
-
-
-%%
-
-
-
-for n=1:1%size_frame
-
-    for i=1:size_ids%size(ids{10},1)
-
-       
-
-%          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%          pts_opti{n}(i,:)=pts{n}(s,:);
-%          ids_opti{n}(i,:)=ids{n}(s,:);
-%          pts_n_opti{n}(i,:)=pts_n{n}(s,:);
-%          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-         Gamma=[1,0,-pts_n_opti{n}(i,1);...
-                0,1,-pts_n_opti{n}(i,2)];
-
-         C_I_R=camR';
-
-         I0_alpha_k=imuPropagate_joint{n}{1};
-
-         I0_q_k=imuPropagate_joint{n}{2};
-
-         Delta_T=imuPropagate_joint{n}{6};
-
-         Ik_I0_R=quatern2rotMat(I0_q_k)';
-
-         % 论文中公式（28）（29）（30）存在错误，这里计算的时候做了修改
-         MM((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,(i-1)*3+1:(i-1)*3+3)=Gamma*C_I_R*Ik_I0_R;
-
-         MM((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,size_ids*3+1:size_ids*3+3)=-Gamma*C_I_R*Ik_I0_R*Delta_T;
-
-         MM((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,size_ids*3+4:size_ids*3+6)=0.5*Gamma*C_I_R*Ik_I0_R*Delta_T*Delta_T;
-
-         bb((i-1)*size_frame*2+n*2-1:(i-1)*size_frame*2+n*2,1)=Gamma*camR'*camT+ Gamma*C_I_R*Ik_I0_R*I0_alpha_k;
-
-   
+        end
 
     end
 
 end
-
-sss=MM*x_opti-bb;
-
-
-a=100;
-
-
-
-
 %%
 
 drawProjection(x_I_k,G_p_f,camR,camT);
 
-drawProjection(x_I_k_opti,G_p_f_opti,camR,camT);
+G_p_f=G_p_f(:,validFeatrues);
 
-drawProjection(I0_x_I_k_opti,I0_p_f_opti,camR,camT);
+drawProjection(x_I_k,G_p_f,camR,camT);
 
-
+[features,num_measurements]=eliminate_features_from_validFeatrues(features,validFeatrues,map_features_ids);
 
 
 %%
 
-if 1
+[x_I_k_opti,G_p_f_opti]=optimaization_openvins_init_using_features(x_I_k,G_p_f,imuPropagate,features,camK,camD,camR,camT,gravity_mag,map_camera_times,num_measurements);
 
-    for n=size_frame
+%%
 
-        drawOpticalFlowLK(imgpyr{1}{1},imgpyr{n}{1},pts_opti{1},pts_opti{n},1,n);
-          
-    end
 
-end
-
-   
-b=1000;
+drawProjection(x_I_k_opti,G_p_f_opti,camR,camT);
 
 
 
 
 
+frame1=1;
+frame2=10;
 
+drawOpticalFlowLK_featrues(imgpyr,features,table_img_timestamp,cam_id,cam_id,frame1,frame2);
 

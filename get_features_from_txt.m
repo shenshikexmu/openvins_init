@@ -16,7 +16,7 @@ for i=1:size(feature_txt,1)
     feat=[];
     if ~isKey(features,num2str(featid))
 
-        feat.timestamps=[];    
+        feat.timestamps{cam_id}=[];    
         feat.uvs_norm{cam_id}=[];     
         feat.uvs{cam_id}=[];    
         feat.featid=featid;
@@ -24,10 +24,22 @@ for i=1:size(feature_txt,1)
         features(num2str(featid))=feat;
         
     end
-    
+     
+
+
     feat=features(num2str(featid));
+
+
+    if cam_id>size(feat.timestamps,2)
+
+        feat.timestamps{cam_id}=[];    
+        feat.uvs_norm{cam_id}=[];     
+        feat.uvs{cam_id}=[]; 
+
+    end
+
         
-    feat.timestamps=[feat.timestamps;timestamps];
+    feat.timestamps{cam_id}=[feat.timestamps{cam_id};timestamps];
     
     feat.uvs_norm{cam_id}=[feat.uvs_norm{cam_id};uvs_norm];
     

@@ -57,7 +57,7 @@ data{14}=x_lin;
 % options=optimset('TolX',1e-6,'TolFun',1e-6,'Algorithm','Levenberg-Marquardt','Display','iter','MaxIter',20);
 % 
 % [a,resnorm]=lsqnonlin(@loss_function_features,a0,[],[],options,data);
-
+% 
 
 
 fprintf('global optimization:\n');
@@ -65,7 +65,7 @@ TolX=1e-6;
 TolFun=1e-6;
 MaxIter=100;
 ConstantValue=[4,5,6];
-[a,resnorm]=Optimize_my_GN(@loss_function_features,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
+[a,resnorm]=Optimize_my_LM2(@loss_function_features,@plus_function,a0,data,TolX,TolFun,MaxIter,ConstantValue);
 
 
 
@@ -168,7 +168,7 @@ for i = 1:length(all_ids)
     for cam_id = 1:length(feat.uvs_norm)
         uvs_norm=feat.uvs_norm{cam_id};
         uvs=feat.uvs{cam_id};
-        timestamps=feat.timestamps;
+        timestamps=feat.timestamps{cam_id};
         
         for j=1:size(timestamps,1)
             
