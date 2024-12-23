@@ -5,7 +5,9 @@ if ~isKey(features,num2str(id))
 
     feat.timestamps{cam_id}=[];    
     feat.uvs_norm{cam_id}=[];     
-    feat.uvs{cam_id}=[];    
+    feat.uvs{cam_id}=[]; 
+    feat.p_FinA=[];
+    feat.p_FinG=[];
     feat.featid=id;
     
     features(num2str(id))=feat;

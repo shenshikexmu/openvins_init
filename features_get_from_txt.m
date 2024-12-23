@@ -1,4 +1,4 @@
-function features=get_features_from_txt(file_name)
+function features=features_get_from_txt(file_name)
     
     
 feature_txt=importdata(file_name);
@@ -18,7 +18,9 @@ for i=1:size(feature_txt,1)
 
         feat.timestamps{cam_id}=[];    
         feat.uvs_norm{cam_id}=[];     
-        feat.uvs{cam_id}=[];    
+        feat.uvs{cam_id}=[]; 
+        feat.p_FinA=[];
+        feat.p_FinG=[];
         feat.featid=featid;
         
         features(num2str(featid))=feat;

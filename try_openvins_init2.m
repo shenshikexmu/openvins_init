@@ -85,7 +85,7 @@ cam_id=1;
 i=1089;
 
 m=10;
-table_img_timestamp=zeros(m,2);
+%table_img_timestamp=zeros(m,2);
 
 for n=1:m
     
@@ -93,7 +93,7 @@ for n=1:m
     img{n}=cv_equalizeHist(img{n});
     imgpyr{n}=cv_buildOpticalFlowPyramid(img{n},win_size,pyr_levels);
     timestamp=datacsv_cam0{i+n-1,1}*10e-10;
-    table_img_timestamp(n,:)=[n,timestamp];
+    %table_img_timestamp(n,:)=[n,timestamp];
     mask{n}=getMask(img{n});
     
     if (exist(['features_',num2str(i),'_',num2str(m),'.mat'])==2)   
@@ -140,7 +140,7 @@ end
 
 %%
 
-features=eliminate_1point_features(features);
+features=features_eliminate_1point(features);
 
 % frame1=9;
 % frame2=16;
@@ -367,13 +367,13 @@ for i=1:num_features
 end
 %%
 
-drawProjection(x_I_k,G_p_f,camR,camT);
+%drawProjection(x_I_k,G_p_f,camR,camT);
 
 G_p_f=G_p_f(:,validFeatrues);
 
 drawProjection(x_I_k,G_p_f,camR,camT);
 
-[features,num_measurements]=eliminate_features_from_validFeatrues(features,validFeatrues,map_features_ids);
+[features,num_measurements]=features_eliminate_from_validFeatrues(features,validFeatrues,map_features_ids);
 
 
 %%
@@ -392,5 +392,5 @@ drawProjection(x_I_k_opti,G_p_f_opti,camR,camT);
 frame1=1;
 frame2=10;
 
-drawOpticalFlowLK_featrues(imgpyr,features,table_img_timestamp,cam_id,cam_id,frame1,frame2);
+drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id,cam_id,frame1,frame2);
 

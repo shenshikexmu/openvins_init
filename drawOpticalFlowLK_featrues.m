@@ -1,11 +1,11 @@
-function  drawOpticalFlowLK_featrues(imgpyr,features,table_img_timestamp,cam_id1,cam_id2,frame1,frame2)
+function  drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id1,cam_id2,frame1,frame2)
 
 
 img1=imgpyr{frame1}{1};
 img2=imgpyr{frame2}{1};
 
-timestamp1=table_img_timestamp(frame1,2);
-timestamp2=table_img_timestamp(frame2,2);
+timestamp1=map_camera_times(frame1,1)-map_camera_times(frame1,3);
+timestamp2=map_camera_times(frame2,1)-map_camera_times(frame2,3);
 
 allKeys = keys(features);
 k=0;
@@ -61,7 +61,6 @@ for i = 1:length(allKeys)
 
 end
 
-
 colors = jet(6);
 
 figure;
@@ -91,17 +90,12 @@ for k=1:size(pts1,1)
     %quiver(pts{1}(j,1)+size(img1,2), pts{1}(j,2)+size(img1,1), pts{n}(k,1)-pts{1}(j,1), pts{n}(k,2)-pts{1}(j,2), 'r', 'LineWidth', 2);
 
     plot([pts1(k,1)+size(img1,2),pts2(k,1)+size(img1,2)],[pts1(k,2)+size(img1,1),pts2(k,2)+size(img1,1)], 'r', 'LineWidth', 2);
-
-       
     
 end
 
 title(['Optical Flow (Lucas-Kanade) image',num2str(frame1),' to image',num2str(frame2)]);
 
 hold off;
-
-a=10;
-
 
 
 end

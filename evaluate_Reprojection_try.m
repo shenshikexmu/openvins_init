@@ -4,7 +4,6 @@ function [E,H_dz_dG_I_p,H_dz_dG_I_angleAxis,H_dz_dG_p_f_k]=evaluate_Reprojection
 
 G_I_R=quatern2rotMat(G_I_q);
 
-
 G_c_R=G_I_R*camR;
 
 G_c_T=G_I_p+G_I_R*camT;
@@ -27,7 +26,6 @@ d_C_p_f_d_G_I_angleAxis=camR'*D_Rtrans_a_D_delta_theta(G_I_q,G_p_f_k-G_I_p); % é
 H_dz_dG_p_f_k=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_p_f_k;
 
 H_dz_dG_I_p=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_I_p;
-
 
 H_dz_dG_I_angleAxis=H_dz_dzn*d_uv_norm_d_C_p_f*d_C_p_f_d_G_I_angleAxis;
 

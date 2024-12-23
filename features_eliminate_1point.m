@@ -1,4 +1,4 @@
-function features=eliminate_1point_features(features)
+function features=features_eliminate_1point(features)
 
 
 allKeys = keys(features);

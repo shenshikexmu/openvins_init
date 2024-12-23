@@ -1,4 +1,4 @@
-function [features,num_measurements]=eliminate_features_from_validFeatrues(features,validFeatrues,map_features_ids)
+function [features,num_measurements]=features_eliminate_from_validFeatrues(features,validFeatrues,map_features_ids)
 
 num_measurements=0;
 
