@@ -44,9 +44,6 @@ end
 Rz90=[0,-1,0;...
       1, 0,0;...
       0, 0,1];
-S=[1,0,0;...
-   0,1,0;...
-   0,0,0 ];
 
 
 
@@ -63,6 +60,9 @@ R4=U*Rz90'*V';
 
 
 [R,T]=Judge_right_R_T2(PP1(1,1:2),PP2(1,1:2),R1,R2,R3,R4,T1,T2,T3,T4);
+
+
+
 
 
 end
@@ -116,7 +116,7 @@ end
 
 
 
-function Skew=V_2_Skew(V)
+function Skew=Skew_symmetric(V)
 
 Skew=[   0,  -V(3),  V(2);...
        V(3),    0,  -V(1);...

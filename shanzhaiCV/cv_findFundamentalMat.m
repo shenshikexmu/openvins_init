@@ -27,7 +27,7 @@ if  strcmp(method , 'cv_FM_RANSAC')
         [R,T]=Initial_R_T(P1_temp,P2_temp);
         if ~isempty(R)
             T=T/norm(T);
-            EEE=V_2_Skew(T)*R;
+            EEE=Skew_symmetric(T)*R;
             for s=1:size(points1,1)
                 SS(s,1)=computeError(points1(s,1:2),points2(s,1:2),EEE);%abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]');
     
@@ -88,7 +88,7 @@ if  strcmp(method , 'cv_FM_RANSAC')
     R=max_R;
     T=max_T;
 
-    EEE=V_2_Skew(T)*R;
+    EEE=Skew_symmetric(T)*R;
 
 
     for s=1:size(points1,1)
@@ -117,7 +117,7 @@ if  strcmp(method , 'cv_FM_RANSAC')
 %     P2_temp= points2(sort_idx(1:floor(n/2)),1:2);
 %     [R,T]=Initial_R_T(P1_temp,P2_temp);
 % 
-%     EEE=V_2_Skew(T)*R;
+%     EEE=Skew_symmetric(T)*R;
 % 
 % 
 % 
@@ -169,7 +169,7 @@ end
 function  err=computeError(p1,p2,E)
     
     
-    %E=V_2_Skew(T)*R;
+    %E=Skew_symmetric(T)*R;
     
 
     v1=[p1(1);p1(2);1];

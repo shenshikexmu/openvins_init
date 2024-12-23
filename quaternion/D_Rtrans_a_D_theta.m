@@ -4,7 +4,7 @@ function dRtans_a_dtheta=D_Rtrans_a_D_theta(theta,a)
 %
 %R=angleAxisToRotationMatrix(theta);
 %
-%Skew=V_2_Skew(a);
+%Skew=Skew_symmetric(a);
 %
 %Jr_theta=J_r(theta);
     

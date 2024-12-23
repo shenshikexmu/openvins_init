@@ -25,7 +25,7 @@ if theta2>1e-9
     n=[angleAxis(1);angleAxis(2);angleAxis(3)]*theta_inverse;
     
     
-    R=costheta*eye(3)+(1-costheta)*n*n'+sintheta*V_2_Skew(n);
+    R=costheta*eye(3)+(1-costheta)*n*n'+sintheta*Skew_symmetric(n);
     
 else
     
@@ -38,7 +38,7 @@ end
 end
 
 
-function Skew=V_2_Skew(V)
+function Skew=Skew_symmetric(V)
 
 Skew=[   0,  -V(3),  V(2);...
        V(3),    0,  -V(1);...

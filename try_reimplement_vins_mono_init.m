@@ -123,28 +123,28 @@ end
 %%
 
 
-for n=1:size(map_camera_times,1)
-
-    img{n}=imread([file_cam0,'data/',datacsv_cam0{map_camera_times(n,2),2}]);
-    img{n}=cv_equalizeHist(img{n});
-    imgpyr{n}=cv_buildOpticalFlowPyramid(img{n},win_size,pyr_levels);
-
-end
-
-
-for i=1:size(map_camera_times,1)-1
-
-    frame1=i;
-    frame2=i+1;
-
-    n=features_intersection_in_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2)
-
-end
+% for n=1:size(map_camera_times,1)
+% 
+%     img{n}=imread([file_cam0,'data/',datacsv_cam0{map_camera_times(n,2),2}]);
+%     img{n}=cv_equalizeHist(img{n});
+%     imgpyr{n}=cv_buildOpticalFlowPyramid(img{n},win_size,pyr_levels);
+% 
+% end
+% 
+% 
+% for i=1:size(map_camera_times,1)-1
+% 
+%     frame1=i;
+%     frame2=i+1;
+% 
+%     n=features_intersection_in_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2)
+% 
+% end
 
 
 %%
-frame1=3;
-frame2=5;
+frame1=1;
+frame2=2;
 
 
 [n,pts1_n,pts2_n]=features_intersection_in_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2);
@@ -157,7 +157,7 @@ T1=[0;0;0];
 
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
 
-draw_init(features,R1,T1,R2,T2);
+draw_init(features,map_camera_times,R1,T1,R2,T2,cam_id,cam_id,frame1,frame2);
 
 drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id,cam_id,frame1,frame2);
 

@@ -10,7 +10,7 @@ if norm_w==0
 
 else
     
-    Skew_w=V_2_Skew(w);
+    Skew_w=Skew_symmetric(w);
     
     invJr=eye(3)+1/2*Skew_w+(1/norm_w^2+(1+cos(norm_w)/(2*norm_w*sin(norm_w))))* Skew_w* Skew_w;
     
@@ -23,7 +23,7 @@ end
 
 
 
-function Skew=V_2_Skew(V)
+function Skew=Skew_symmetric(V)
 
 Skew=[   0,  -V(3),  V(2);...
        V(3),    0,  -V(1);...
