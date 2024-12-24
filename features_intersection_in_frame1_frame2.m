@@ -1,4 +1,4 @@
-function [n,pts1_n,pts2_n]=features_intersection_in_frame1_frame2(features,map_camera_times,cam_id1,cam_id2,frame1,frame2)
+function [n,pts1_n,pts2_n,pts1,pts2]=features_intersection_in_frame1_frame2(features,map_camera_times,cam_id1,cam_id2,frame1,frame2)
 
 
 timestamp1=map_camera_times(frame1,1)-map_camera_times(frame1,3);
@@ -9,6 +9,9 @@ n=0;
 
 pts1_n=[];
 pts2_n=[];
+
+pts1=[];
+pts2=[];
 
 
 for i = 1:length(allKeys)
@@ -56,6 +59,11 @@ for i = 1:length(allKeys)
         pts1_n=[pts1_n;feat.uvs_norm{cam_id1}(frame1_timestamps,:)];
 
         pts2_n=[pts2_n;feat.uvs_norm{cam_id2}(frame2_timestamps,:)];
+
+
+        pts1=[pts1;feat.uvs{cam_id1}(frame1_timestamps,:)];
+
+        pts2=[pts2;feat.uvs{cam_id2}(frame2_timestamps,:)];
 
     end
 

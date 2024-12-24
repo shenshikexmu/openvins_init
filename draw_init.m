@@ -1,11 +1,7 @@
 function []=draw_init(features,map_camera_times,R1,T1,R2,T2,cam_id1,cam_id2,frame1,frame2)
 
-
-
 timestamp1=map_camera_times(frame1,1)-map_camera_times(frame1,3);
 timestamp2=map_camera_times(frame2,1)-map_camera_times(frame2,3);
-
-
 
 figure
 
@@ -14,9 +10,9 @@ T{1}=T1;
 R{2}=R2;
 T{2}=T2;
 
-colors = jet(size(R,2));
+colors = jet(10);
 
-scale=0.5;
+scale=2;
 
 img_x_len=0.2*scale;
 img_y_len=0.127*scale;
@@ -50,8 +46,7 @@ end
 
 axis equal;
 
-Len=10;
-
+Len=16;
 
 ids_all = keys(features);
 
@@ -63,7 +58,7 @@ for i = 1:length(ids_all)
 
     if ~isempty( feat.p_FinA)
 
-        plot3(feat.p_FinA(1),feat.p_FinA(2),feat.p_FinA(3),'r*');
+        plot3(feat.p_FinA(1),feat.p_FinA(2),feat.p_FinA(3),'b.');
 
 
         flag1=0; 
@@ -78,9 +73,6 @@ for i = 1:length(ids_all)
                     
                     uv_n=feat.uvs_norm{cam_id1}(j,:);
                     V1=R1*[uv_n(1);uv_n(2);1];
-
-                    
-
     
                 end
     
@@ -98,13 +90,8 @@ for i = 1:length(ids_all)
 
                     flag2=1;
 
-
                     uv_n=feat.uvs_norm{cam_id2}(j,:);
                     V2=R2*[uv_n(1);uv_n(2);1];
-
-                  
-
-                    
                    
                 end
     
@@ -125,7 +112,10 @@ for i = 1:length(ids_all)
 
 end
 
-hold off;
+%hold off;
 
 
 end
+    
+       
+

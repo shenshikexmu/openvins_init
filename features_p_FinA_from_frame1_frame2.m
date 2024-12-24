@@ -51,13 +51,13 @@ for i = 1:length(ids_all)
 
         U2=[feat.uvs_norm{cam_id2}(frame2_timestamps,1);feat.uvs_norm{cam_id2}(frame2_timestamps,2);1];
 
-        A=[R1';R2'];
+        A=[Skew_symmetric(R1*U1);Skew_symmetric(R2*U2)];
 
-        b=[U1+R1'*T1;U2+R2'*T2];
+        b=[Skew_symmetric(R1*U1)*T1;Skew_symmetric(R2*U2)*T2];
 
-        p_FinA_temp=A\b;
+        X=A\b;
 
-        feat.p_FinA=p_FinA_temp;
+        feat.p_FinA=X;
 
     end
 

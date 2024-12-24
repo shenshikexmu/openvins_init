@@ -82,9 +82,9 @@ GYR_W=1.9393e-05;
 features=containers.Map();
 cam_id=1;
 
-i=1089;
+i=1112;
 
-m=10;
+m=16;
 %table_img_timestamp=zeros(m,2);
 
 for n=1:m
@@ -123,7 +123,7 @@ for n=1:m
         pts_last_plot=refine(pts{n-1},mask_out);
 
         %drawOpticalFlowLK(imgpyr{n-1}{1},imgpyr{n}{1},pts_last_plot,pts{n},n-1,n);
-        a=10;
+      
 
     end
 
@@ -214,24 +214,36 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 frame1=1;
-frame2=3;
+frame2=2;
 
-
-[n,pts1_n,pts2_n]=features_intersection_in_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2);
-
+[n,pts1_n,pts2_n,pts1,pts2]=features_intersection_in_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2);
 
 R1=eye(3);
 T1=[0;0;0];
 
 [R2,T2]=Initial_R_T(pts1_n,pts2_n);
 
-[R2_,T2_]=optimaization_R_T(R2,T2,pts1_n,pts2_n);
+[R2_,T2_]=optimaization_R_T(R2,T2,pts1_n,pts2_n,pts1,pts2,camK,camD);
 
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2_,T2_);
 
-
-
 drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id,cam_id,frame1,frame2);
 
-
 draw_init(features,map_camera_times,R1,T1,R2_,T2_,cam_id,cam_id,frame1,frame2);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
