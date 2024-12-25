@@ -1,14 +1,14 @@
 function features=features_eliminate_1point(features)
 
 
-allKeys = keys(features);
+all_ids = keys(features);
 
 
-for i = 1:length(allKeys)
+for i = 1:length(all_ids)
 
-    key = allKeys{i}; % 获取当前键
+    id = all_ids{i}; % 获取当前键
 
-    feat = features(key);
+    feat = features(id);
 
     sum_point=0;
 
@@ -23,12 +23,10 @@ for i = 1:length(allKeys)
     end
 
     if sum_point<2
-        remove(features, key);
+        
+        remove(features, id);
         
     end
-
-
-
 
 end
 

@@ -13,7 +13,7 @@ matlab_or_octave=1;
 
 global min_px_dist  grid_x grid_y num_features threshold currid camK camD win_size pyr_levels
 
-num_pts=300;  % 定位需要提取的特征点数
+num_pts=800;  % 定位需要提取的特征点数
 num_cameras=1;
 num_features=round(num_pts/num_cameras);
 
@@ -71,7 +71,7 @@ for n=1:m
         ids{n}=refine(ids{n},mask_out);
         pts_last_plot=refine(pts{n-1},mask_out);
 
-        drawOpticalFlowLK(imgpyr{n-1}{1},imgpyr{n}{1},pts_last_plot,pts{n},n-1,n);      
+        %drawOpticalFlowLK(imgpyr{n-1}{1},imgpyr{n}{1},pts_last_plot,pts{n},n-1,n);      
 
     end
 
@@ -97,9 +97,9 @@ frame2=2;
 R1=eye(3);
 T1=[0;0;0];
 
-[R2,T2]=Initial_R_T(pts1_n,pts2_n);
+[R2_,T2_]=Initial_R_T(pts1_n,pts2_n);
 
-[R2_,T2_]=optimaization_R_T(R2,T2,pts1_n,pts2_n,pts1,pts2,camK,camD);
+%[R2_,T2_]=optimaization_R_T(R2,T2,pts1_n,pts2_n,pts1,pts2,camK,camD);
 
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2_,T2_);
 

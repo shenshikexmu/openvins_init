@@ -32,9 +32,9 @@ k=0;
 fprintf('%12s  %12s %12s %12s \n','Iterations','Residual','Lambda','Step');
 while (~found && k<MaxIter+1)
     
-    delta_x=-(Jacobi'*Jacobi+Lambda*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain))\Jacobi'*Ek;  
+    %delta_x=-(Jacobi'*Jacobi+Lambda*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain))\Jacobi'*Ek;  
   
-    %delta_x=-(Jacobi'*Jacobi+sqrt(Lambda)*eye(len_uncertain))\Jacobi'*Ek;  
+    delta_x=-(Jacobi'*Jacobi+sqrt(Lambda)*eye(len_uncertain))\Jacobi'*Ek;  
 
 %     M=-(Jacobi'*Jacobi+Lambda*sqrt(diag(diag(Jacobi'*Jacobi)))*eye(len_uncertain));
 %     P=Jacobi'*Ek;

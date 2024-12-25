@@ -41,7 +41,7 @@ function  [kpts0, kpts1, mask_out]=perform_matching(img0pyr, img1pyr, kpts0, kpt
     
     max_focallength=max(camK(1,1),camK(2,2));
     
-    [mask_rsc]=cv_findFundamentalMat(pts0_n, pts1_n, 'cv_FM_RANSAC', 2/max_focallength ,0.9999);
+    [mask_rsc]=cv_findFundamentalMat(pts0_n, pts1_n, 'cv_FM_RANSAC', 1/max_focallength ,0.9999);
     
     
     mask_out=floor((mask_klt+mask_rsc)/2);

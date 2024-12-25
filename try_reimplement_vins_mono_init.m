@@ -113,6 +113,7 @@ for n=1:size(map_camera_times,1)
 
     imuPropagate_joint{n}=repropagate_VINS_Mono(imuData_fragment_joint{n},ba,bg);
 
+
 end
 
 
@@ -148,17 +149,14 @@ T1=[0;0;0];
 
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
 
-
 drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id,cam_id,frame1,frame2);
 
 draw_init(features,map_camera_times,R1,T1,R2,T2,cam_id,cam_id,frame1,frame2);
-
 
 x_I_k(1:4,1)=rotMat2qRichard(R1);
 x_I_k(5:7,1)=T1;
 x_I_k(1:4,2)=rotMat2qRichard(R2);
 x_I_k(5:7,2)=T2;
-
 
 for i=3:size(map_camera_times,1)
 
@@ -172,8 +170,6 @@ for i=3:size(map_camera_times,1)
     x_I_k(1:4,i)=rotMat2qRichard(R_temp);
     x_I_k(5:7,i)=T_temp;
 
-
-
 end
 %%
 
@@ -181,14 +177,43 @@ end
 [x_I_k_opti,G_p_f_opti]=optimaization_vins_mono_init_using_features(x_I_k,features,camK,camD,map_camera_times);
 
 
+drawProjection(x_I_k_opti,G_p_f_opti,eye(3),zeros(3,1));
+
+
+
+%%
+
+AA=[];
+bb=[];
+
+for n=3:size(map_camera_times,1)
+
+    if n>1
+
+        gamma_k_k_1=imuPropagate{n}{2};
+
+        J_gamma_bw=imuPropagate{n}{7}(4:6,13:15);
+
+        q_c_bk=x_I_k_opti(1:4,n-1);
+
+        q_c_bk_1=x_I_k_opti(1:4,n);
+
+        q_temp=quaternProd(quaternProd(invQuaternion(gamma_k_k_1),invQuaternion(q_c_bk)),q_c_bk_1);
+
+        AA=[AA;0.5*J_gamma_bw];
+
+        bb=[bb;q_temp(2:4)];
+
+    end
+
+end
+
+% bg=AA\bb ;       % The calculation here is not good !!!!!! not good !!!!!
 
 
 
 
-
-
-
-
+%%
 
 
 

@@ -4,7 +4,7 @@ min_gap=Inf;
 
 for i=1:size(map_camera_times,1)
     
-    gap=abs(map_camera_times(i,1)-camtime);
+    gap=abs(map_camera_times(i,1)-map_camera_times(i,3)-camtime);
     
     if gap<min_gap
         

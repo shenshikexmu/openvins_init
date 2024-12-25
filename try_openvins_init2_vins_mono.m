@@ -82,9 +82,9 @@ GYR_W=1.9393e-05;
 features=containers.Map();
 cam_id=1;
 
-i=1112;
+i=616;
 
-m=16;
+m=2;
 %table_img_timestamp=zeros(m,2);
 
 for n=1:m
@@ -142,10 +142,6 @@ end
 
 features=features_eliminate_1point(features);
 
-% frame1=9;
-% frame2=16;
-% 
-% drawOpticalFlowLK_featrues(imgpyr,features,table_img_timestamp,cam_id,cam_id,frame1,frame2);
 
 %%
 
@@ -221,9 +217,9 @@ frame2=2;
 R1=eye(3);
 T1=[0;0;0];
 
-[R2,T2]=Initial_R_T(pts1_n,pts2_n);
+[R2_,T2_]=Initial_R_T(pts1_n,pts2_n);
 
-[R2_,T2_]=optimaization_R_T(R2,T2,pts1_n,pts2_n,pts1,pts2,camK,camD);
+%[R2_,T2_]=optimaization_R_T(R2,T2,pts1_n,pts2_n,pts1,pts2,camK,camD);
 
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2_,T2_);
 
