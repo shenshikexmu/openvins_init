@@ -291,7 +291,9 @@ for i=1:size(x_I_k_opti,2)
 
     R_c0_ck=quatern2rotMat(q_c0_ck);
 
-    
+
+
+
     R_w_ck=R_w_c0*R_c0_ck;
 
     P_w_ck=R_w_c0*P_c0_ck;
@@ -308,12 +310,8 @@ for i=1:size(x_I_k_opti,2)
 end
 
 
-G_p_f_body=R_w_c0*G_p_f_opti*scale;
 
 
-
-
-drawProjection(x_I_K_body,G_p_f_body,camR,camT);
 
 
 

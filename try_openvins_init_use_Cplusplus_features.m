@@ -178,7 +178,6 @@ for i = 1:length(all_ids)
 
 end
 
-a=10;
 
 A1=M(:,1:num_features*3+3);
 A2=M(:,num_features*3+4:num_features*3+6);
@@ -202,11 +201,11 @@ x=M\b;
 
 I0_v_I0=x1(num_features*3+1:num_features*3+3,1);
 
-% G_I0_q=getInitQuaternionfromAcc_xfront(I0_g);
-% G_I0_R=quatern2rotMat(G_I0_q);
+G_I0_q=getInitQuaternionfromAcc_xfront(I0_g);
+G_I0_R=quatern2rotMat(G_I0_q);
 
-G_I0_R = gram_schmidt(I0_g)';
-G_I0_q = rotMat2qRichard(G_I0_R);
+% G_I0_R = gram_schmidt(I0_g)';
+% G_I0_q = rotMat2qRichard(G_I0_R);
 
 
 for i=1:num_features
