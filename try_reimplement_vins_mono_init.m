@@ -89,6 +89,9 @@ map_camera_times = unique(map_camera_times);
 map_camera_times=[map_camera_times,map_camera_times*0,map_camera_times*0];
 
 
+
+
+
  for i=1:size(map_camera_times,1)
 
     [n_frame,timestamps_new, min_gap]=find_image_frame_corresponding_timestamps(datacsv_cam0,map_camera_times(i,1));
@@ -141,9 +144,21 @@ frame2=2;
 R1=eye(3);
 T1=[0;0;0];
 
-[R2,T2]=Initial_R_T(pts1_n,pts2_n);
+[mask,R2,T2]=cv_findFundamentalMat(pts1_n,pts2_n, 'cv_FM_RANSAC', 4/max([camK(1,1),camK(2,2)]) ,0.99999 );
 
-%[R2,T2]=optimaization_R_T(R2,T2,pts1_n,pts2_n,pts1,pts2,camK,camD);
+% R2=[0.996258210477046, -0.00440528968611943, -0.08631437585857522;...
+%  0.00130517262611012, 0.9993530921139653, -0.0359401419957168;...
+%  0.08641686514500528, 0.03569300638833325, 0.9956194728476699];
+% 
+% T2=[-0.7338037225147479;...
+%  -0.6661929476458722;...
+%  -0.1331129344970006];
+% 
+% 
+% T2=-T2;
+% R2=R2;
+
+
 
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
 

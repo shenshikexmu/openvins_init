@@ -25,12 +25,18 @@ if  strcmp(method , 'cv_FM_RANSAC')
         P1_temp= points1(idx,1:2);
         P2_temp= points2(idx,1:2);
         [R,T]=Initial_R_T(P1_temp,P2_temp);
+        SS=zeros(size(points1,1),1);
+        flag=zeros(size(points1,1),1);
         if ~isempty(R)
             T=T/norm(T);
             EEE=Skew_symmetric(T)*R;
             for s=1:size(points1,1)
-                SS(s,1)=computeError(points1(s,1:2),points2(s,1:2),EEE);%abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]');
-    
+                SS(s,1)=computeError(points1(s,1:2),points2(s,1:2),EEE);%abs([points1(s,1:2),1]*EEE*[points2(s,1:2),1]');             
+                [s1,s2]=Location_scale(points1(s,1:2),points2(s,1:2),R,T);
+                if s1>0 &&s2>0
+                    flag(s,1)=1;
+                end
+
             end
     
     %         total=sum(SS<0.03);
@@ -49,7 +55,9 @@ if  strcmp(method , 'cv_FM_RANSAC')
 %                 min_T=T;
 %             end
 
-            count = sum(SS < ransacReprojThreshold);
+            %count = sum(SS < ransacReprojThreshold);
+
+            count = sum(flag);
 
             if count>max_count
 
@@ -195,5 +203,15 @@ function  err=computeError(p1,p2,E)
 end
 
 
+function [s1,s2]=Location_scale(P1,P2,R,T)
 
+V1=[P1,1]';
+V2=R*[P2,1]';
+
+t=[V1,-V2]\T;
+
+s1=t(1);
+s2=t(2);
+
+end
 

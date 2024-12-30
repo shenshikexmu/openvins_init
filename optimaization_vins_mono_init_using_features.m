@@ -54,32 +54,32 @@ for j = 1:length(all_ids)
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    for frame=1:size_frame
-
-        timestamp=map_camera_times(frame,1)-map_camera_times(frame,3);
-
-        for cam_id = 1:length(feat.timestamps)
-        
-            for s=1:size(feat.timestamps{cam_id},1)
-            
-                if feat.timestamps{cam_id}(s,1)==timestamp
-
-                    R=quatern2rotMat(x_I_k(1:4,frame));
-            
-                    T=x_I_k(5:7,frame);
-            
-                    V=R'*(X-T);
-                    if V(3)<0
-
-                        validateFeature(j)=false;
-                    end
-
-                end
-
-            end
-        end
-  
-    end
+%     for frame=1:size_frame
+% 
+%         timestamp=map_camera_times(frame,1)-map_camera_times(frame,3);
+% 
+%         for cam_id = 1:length(feat.timestamps)
+%         
+%             for s=1:size(feat.timestamps{cam_id},1)
+%             
+%                 if feat.timestamps{cam_id}(s,1)==timestamp
+% 
+%                     R=quatern2rotMat(x_I_k(1:4,frame));
+%             
+%                     T=x_I_k(5:7,frame);
+%             
+%                     V=R'*(X-T);
+%                     if V(3)<0
+% 
+%                         validateFeature(j)=false;
+%                     end
+% 
+%                 end
+% 
+%             end
+%         end
+%   
+%     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
