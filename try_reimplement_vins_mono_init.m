@@ -4,6 +4,9 @@ addpath('shanzhaiCV');
 addpath('yamlMatlab');
 addpath('repropagate');
 addpath('quaternion');
+addpath('orb_slam');
+
+
 
 global matlab_or_octave
 matlab_or_octave=1; 
@@ -90,8 +93,6 @@ map_camera_times=[map_camera_times,map_camera_times*0,map_camera_times*0];
 
 
 
-
-
  for i=1:size(map_camera_times,1)
 
     [n_frame,timestamps_new, min_gap]=find_image_frame_corresponding_timestamps(datacsv_cam0,map_camera_times(i,1));
@@ -144,27 +145,65 @@ frame2=2;
 R1=eye(3);
 T1=[0;0;0];
 
-[mask,R2,T2]=cv_findFundamentalMat(pts1_n,pts2_n, 'cv_FM_RANSAC', 4/max([camK(1,1),camK(2,2)]) ,0.9999 );
+[mask,R2,T2]=cv_findFundamentalMat(pts1_n,pts2_n, 'cv_FM_RANSAC', 4/max([camK(1,1),camK(2,2)]) ,0.99999999 );
+
+
+
+mMaxIterations=200;
+mSigma=1.0;
+mSigma2 = mSigma*mSigma;
+mvMatches12=(1:size(pts1_n,1))';
+mvSets=zeros(8,mMaxIterations);
+
+for i=1:mMaxIterations
+    mvSets(:,i)=randperm(size(pts1_n,1),8)';
+end
+
+[vbMatchesInliersF, SF, F] = FindFundamental(mvMatches12, pts1_n, pts2_n, mvSets, mMaxIterations, mSigma);
+
+[vbMatchesInliersH, SH, H] = FindHomography(mvMatches12, pts1_n, pts2_n, mvSets, mMaxIterations, mSigma);
+
+RH = SH/(SH+SF);
+
+mK=eye(3);
+
+R21=[];
+t21=[];
+vP3D=[];
+vbTriangulated=[];
+
+[success,R21, t21,vP3D, vbTriangulated]=ReconstructH(vbMatchesInliersH,H,mK,mvMatches12,pts1_n, pts2_n,1.0,50,mSigma2);
+
+% if RH>0.40
+%     ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+% else
+%     ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+% end
+
+
+
+
+
+
 
 %[R2,T2]=Initial_R_T(pts1_n,pts2_n);
 
-% R2=[0.996258210477046, -0.00440528968611943, -0.08631437585857522;...
-%  0.00130517262611012, 0.9993530921139653, -0.0359401419957168;...
-%  0.08641686514500528, 0.03569300638833325, 0.9956194728476699];
+% R2=[0.996258210477046, 0.001305172626110589, 0.08641686514500559;...
+%  -0.004405289686119615, 0.9993530921139655, 0.03569300638833356;...
+%  -0.08631437585857517, -0.03594014199571702, 0.9956194728476701];
 % 
-% T2=[-0.7338037225147479;...
-%  -0.6661929476458722;...
-%  -0.1331129344970006];
-% 
-% 
-% T2=-R2'*T2;
-% R2=R2';
+% T2=[0.7434306827423962;...
+%  0.6672805650253606;...
+%  0.04524895022661077];
+
+
+
 
 
 
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
 
-drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id,cam_id,frame1,frame2);
+%drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id,cam_id,frame1,frame2);
 
 draw_init(features,map_camera_times,R1,T1,R2,T2,cam_id,cam_id,frame1,frame2);
 

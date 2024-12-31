@@ -11,7 +11,7 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
     k=ceil(log(1-confidence)/log(1-0.8^n_linear));   %需要循环的次数
 
-
+   
 %    min_SS=inf;
 
     max_SS=[];
