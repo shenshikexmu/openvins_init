@@ -90,9 +90,9 @@ function [nGood, vP3D, vbGood, parallax] = CheckRT(R, t, vKeys1, vKeys2, vMatche
     % If there are good points, compute the parallax
     if nGood > 0
         vCosParallax = sort(vCosParallax);
-        idx = min(50, length(vCosParallax));
+        idx = min(50, length(vCosParallax) - 1);
         parallax = acos(vCosParallax(idx)) * 180 / pi;
     else
         parallax = 0;
     end
-end
+*end

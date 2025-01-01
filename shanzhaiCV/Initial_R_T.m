@@ -29,6 +29,10 @@ T1=[scale_P1,0,-scale_P1*P1_mean(1);...
     0,scale_P1,-scale_P1*P1_mean(2);...
     0,0,1];
 
+
+
+[PP1_, T1_] = Normalize(P1);
+
 P2_mean=mean(P2,1);
 
 P2_0=P2-P2_mean;

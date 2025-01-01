@@ -13,9 +13,9 @@ function [success, R21, t21,vP3D, vbTriangulated] = ReconstructF(vbMatchesInlier
     t2 = -t;
     
     % Initialize variables for 3D reconstruction and triangulation status
-%     vP3D1 = []; vP3D2 = []; vP3D3 = []; vP3D4 = [];
-%     vbTriangulated1 = []; vbTriangulated2 = []; vbTriangulated3 = []; vbTriangulated4 = [];
-%     parallax1 = 0; parallax2 = 0; parallax3 = 0; parallax4 = 0;
+    vP3D1 = []; vP3D2 = []; vP3D3 = []; vP3D4 = [];
+    vbTriangulated1 = []; vbTriangulated2 = []; vbTriangulated3 = []; vbTriangulated4 = [];
+    parallax1 = 0; parallax2 = 0; parallax3 = 0; parallax4 = 0;
     
     % Check RT hypotheses
     [nGood1, vP3D1, vbTriangulated1, parallax1] = CheckRT(R1, t1, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, 4.0 * mSigma2);
@@ -26,7 +26,7 @@ function [success, R21, t21,vP3D, vbTriangulated] = ReconstructF(vbMatchesInlier
     % Find the best hypothesis based on the number of good points
     maxGood = max([nGood1, nGood2, nGood3, nGood4]);
     
-    R21 = []; t21 = []; vP3D=[]; vbTriangulated=[]; % Initialize output variables
+    R21 = []; t21 = [];  % Initialize output variables
     
     % Minimum number of good triangulated points
     nMinGood = max(floor(0.9 * N), minTriangulated);

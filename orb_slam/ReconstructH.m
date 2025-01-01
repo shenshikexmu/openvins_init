@@ -105,6 +105,8 @@ function [success,R21, t21,vP3D, vbTriangulated] = ReconstructH(vbMatchesInliers
         vbTriangulatedi = [];
         [nGood, vP3Di, vbTriangulatedi, parallaxi] = CheckRT(vR{i}, vt{i}, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, 4.0 * mSigma2);
 
+        nGood
+
 
         if nGood > bestGood
             secondBestGood = bestGood;
