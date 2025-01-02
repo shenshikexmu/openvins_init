@@ -81,6 +81,13 @@ E=[ e(1),e(2),e(3);...
     e(4),e(5),e(6);...
     e(7),e(8),e(9)];
 
+[UUU, SSS, VVV] = svd(E);
+
+SSS(3, 3) = 0;
+
+E = UUU * SSS * VVV';
+
+
 [U,S1,V]=svd(T1'*E*T2);
 %[U2,S2,V2]=svd(-E);
 

@@ -145,7 +145,7 @@ frame2=2;
 R1=eye(3);
 T1=[0;0;0];
 
-[mask,R2,T2]=cv_findFundamentalMat(pts1_n,pts2_n, 'cv_FM_RANSAC', 4/max([camK(1,1),camK(2,2)]) ,0.99999999 );
+[mask,R2_,T2_]=cv_findFundamentalMat(pts1_n,pts2_n, 'cv_FM_RANSAC', 4/max([camK(1,1),camK(2,2)]) ,0.99999999 );
 
 
 
@@ -159,7 +159,9 @@ for i=1:mMaxIterations
     mvSets(:,i)=randperm(size(pts1_n,1),8)';
 end
 
-[vbMatchesInliersF, SF, F] = FindFundamental(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
+[vbMatchesInliersF, SF, F,R21,t21,vP3D] = FindFundamental_change(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
+
+
 
 %[vbMatchesInliersH, SH, H] = FindHomography(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
 
@@ -172,7 +174,7 @@ mK=eye(3);
 %[success,R21, t21,vP3D, vbTriangulated]=ReconstructH(vbMatchesInliersH,H,mK,mvMatches12,pts1_n, pts2_n,1.0,20,mSigma2);
 
 
-[success,R21, t21,vP3D, vbTriangulated]=ReconstructF(vbMatchesInliersF,F,mK,mvMatches12,pts1_n, pts2_n,1.0,20,mSigma2);
+%[success,R21, t21,vP3D, vbTriangulated]=ReconstructF(vbMatchesInliersF,F,mK,mvMatches12,pts2_n, pts1_n,1.0,20,mSigma2);
 
 % if RH>0.40
 %     ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
@@ -180,26 +182,18 @@ mK=eye(3);
 %     ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
 % end
 
+R2=R2_;
+T2=T2_;
 
 
+features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
 
+%drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id,cam_id,frame1,frame2);
 
+draw_init(features,map_camera_times,R1,T1,R2,T2,cam_id,cam_id,frame1,frame2);
 
-
-%[R2,T2]=Initial_R_T(pts1_n,pts2_n);
-
-% R2=[0.996258210477046, 0.001305172626110589, 0.08641686514500559;...
-%  -0.004405289686119615, 0.9993530921139655, 0.03569300638833356;...
-%  -0.08631437585857517, -0.03594014199571702, 0.9956194728476701];
-% 
-% T2=[0.7434306827423962;...
-%  0.6672805650253606;...
-%  0.04524895022661077];
-
-
-
-
-
+R2=R21;
+T2=t21;
 
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
 

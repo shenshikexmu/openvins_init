@@ -11,6 +11,8 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
     k=ceil(log(1-confidence)/log(1-0.8^n_linear));   %需要循环的次数
 
+    k=200;
+
    
 %    min_SS=inf;
 
@@ -39,24 +41,6 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
             end
     
-    %         total=sum(SS<0.03);
-    %         if total>max_SS
-    %             maz_SS=total;
-    %             max_R=R;
-    %             max_T=T;
-    %         end
-            
-%             sum_SS=sum(SS);
-% %                 i
-% %                 sum_SS
-%             if sum_SS<min_SS
-%                 min_SS=sum_SS;
-%                 min_R=R;
-%                 min_T=T;
-%             end
-
-            %count = sum(SS < ransacReprojThreshold);
-
             count = sum(flag);
 
             if count>max_count
@@ -67,7 +51,6 @@ if  strcmp(method , 'cv_FM_RANSAC')
 
                 max_R=R;
                 max_T=T;
-
 
             elseif count==max_count
 
@@ -81,7 +64,6 @@ if  strcmp(method , 'cv_FM_RANSAC')
                     max_T=T;
 
                 end
-
 
             end
 
