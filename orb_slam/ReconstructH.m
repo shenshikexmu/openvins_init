@@ -1,4 +1,4 @@
-function [success,R21, t21,vP3D, vbTriangulated] = ReconstructH(vbMatchesInliers, H21, K,mvMatches12, mvKeys1, mvKeys2, minParallax, minTriangulated,mSigma2)
+function [success,R21, t21,bestGood,vP3D, vbTriangulated] = ReconstructH(vbMatchesInliers, H21, K,mvMatches12, mvKeys1, mvKeys2, minParallax, minTriangulated,mSigma2)
     % Number of matches
     N = sum(vbMatchesInliers);
     
@@ -9,7 +9,7 @@ function [success,R21, t21,vP3D, vbTriangulated] = ReconstructH(vbMatchesInliers
     A = invK * H21 * K;
 
     % SVD decomposition of A
-    [U, w, Vt] = svd(A, 'econ');
+    [U, w, Vt] = svd(A);
     V = Vt';
 
     % Check the determinant of U and Vt to ensure the validity of the decomposition
@@ -100,13 +100,10 @@ function [success,R21, t21,vP3D, vbTriangulated] = ReconstructH(vbMatchesInliers
 
     % Check each of the 8 hypotheses
     for i = 1:8
-        parallaxi = 0;
-        vP3Di = [];
-        vbTriangulatedi = [];
+%         parallaxi = 0;
+%         vP3Di = [];
+%         vbTriangulatedi = [];
         [nGood, vP3Di, vbTriangulatedi, parallaxi] = CheckRT(vR{i}, vt{i}, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, 4.0 * mSigma2);
-
-        nGood
-
 
         if nGood > bestGood
             secondBestGood = bestGood;

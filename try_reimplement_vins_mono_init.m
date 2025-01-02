@@ -163,11 +163,14 @@ end
 
 
 
-%[vbMatchesInliersH, SH, H] = FindHomography(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
+[vbMatchesInliersH, SH, H,R21,t21,vP3D] = FindHomography_change(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
+
+
+
 
 %RH = SH/(SH+SF);
 
-mK=eye(3);
+
 
 
 
