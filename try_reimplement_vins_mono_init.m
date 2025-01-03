@@ -159,7 +159,7 @@ for i=1:mMaxIterations
     mvSets(:,i)=randperm(size(pts1_n,1),8)';
 end
 
-[vbMatchesInliersF, SF, F,R21,t21,vP3D] = FindFundamental_change(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
+%[vbMatchesInliersF, SF, F,R21,t21,vP3D] = FindFundamental_change(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
 
 
 

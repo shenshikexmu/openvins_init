@@ -81,11 +81,11 @@ GYR_W=1.9393e-05;
 
 
 
-i=489;
+i=789;
 
 
 
-m=16;
+m=4;
 for n=1:m
     
     img{n}=imread([file_cam0,'data/',datacsv_cam0{i+n-1,2}]);
@@ -126,7 +126,7 @@ for n=1:m
         pts_n{n}(p,:)=undistort_cv(pts{n}(p,1:2)-[1,1], camK,camD);
     end
 
-    [mask]=cv_findFundamentalMat(pts_n{n-1}, pts_n{n}, 'cv_FM_RANSAC', 1/max_focallength ,0.999);
+    [mask]=cv_findFundamentalMat(pts_n{n-1}, pts_n{n}, 'cv_FM_RANSAC', 2/max_focallength ,0.999);
 
     pts{n-1}=refine(pts{n-1},mask);
     pts_n{n-1}=refine(pts_n{n-1},mask);

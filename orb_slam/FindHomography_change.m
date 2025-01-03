@@ -31,8 +31,8 @@ for it = 1:mMaxIterations
 %         vPn1i(j, :) = vPn1(mvMatches12{idx}(1), :);
 %         vPn2i(j, :) = vPn2(mvMatches12{idx}(2), :);
 %     end
-    vPn1i=vPn1(mvMatches12(mvSets(:,it)), :);
-    vPn2i=vPn2(mvMatches12(mvSets(:,it)), :);
+    vPn1i=vPn1(mvMatches12(mvSets(1:4,it)), :);
+    vPn2i=vPn2(mvMatches12(mvSets(1:4,it)), :);
 
     Hn = ComputeH21(vPn1i, vPn2i);
     H21i = T2inv * Hn * T1;

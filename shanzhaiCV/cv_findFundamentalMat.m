@@ -42,6 +42,7 @@ if  strcmp(method , 'cv_FM_RANSAC')
             end
     
             count = sum(flag);
+            
 
             if count>max_count
 

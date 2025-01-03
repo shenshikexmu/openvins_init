@@ -84,7 +84,7 @@ cam_id=1;
 
 i=312;
 
-m=10;
+m=5;
 %table_img_timestamp=zeros(m,2);
 
 for n=1:m
@@ -386,7 +386,7 @@ drawProjection(x_I_k,G_p_f,camR,camT);
 drawProjection(x_I_k_opti,G_p_f_opti,camR,camT);
 
 
-
+%%
 
 
 frame1=1;
