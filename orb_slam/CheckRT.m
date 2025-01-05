@@ -82,7 +82,10 @@ for i = 1:length(vMatches12)
     % Store the 3D point and parallax
     vCosParallax = [vCosParallax; cosParallax];
     vP3D(:,vMatches12(i, 1)) = p3dC1;
-    nGood = nGood + 1;
+
+    if  p3dC2(3)>0 &&  p3dC1(3)>0
+        nGood = nGood + 1;
+    end
 
     % If cosParallax is low, consider it a good match
     if cosParallax < 0.99998

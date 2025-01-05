@@ -30,8 +30,8 @@ minError=inf;
 % Perform all RANSAC iterations and save the solution with the highest score
 for it = 1:mMaxIterations
     % Select a minimum set
-    vPn1i=vPn1(mvMatches12(mvSets(:,it)), :);
-    vPn2i=vPn2(mvMatches12(mvSets(:,it)), :);
+    vPn1i=vPn1(mvMatches12(mvSets(1:4,it)), :);
+    vPn2i=vPn2(mvMatches12(mvSets(1:4,it)), :);
 
     Hn = ComputeH21(vPn1i, vPn2i);
     H21i = T2inv * Hn * T1;

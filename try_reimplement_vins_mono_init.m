@@ -6,11 +6,8 @@ addpath('repropagate');
 addpath('quaternion');
 addpath('orb_slam');
 
-
-
 global matlab_or_octave
 matlab_or_octave=1; 
-
 
 file_cam0='../bag/V1_02_medium/mav0/cam0/';
 file_imu0='../bag/V1_02_medium/mav0/imu0/';
@@ -92,7 +89,6 @@ map_camera_times = unique(map_camera_times);
 map_camera_times=[map_camera_times,map_camera_times*0,map_camera_times*0];
 
 
-
  for i=1:size(map_camera_times,1)
 
     [n_frame,timestamps_new, min_gap]=find_image_frame_corresponding_timestamps(datacsv_cam0,map_camera_times(i,1));
@@ -117,9 +113,7 @@ for n=1:size(map_camera_times,1)
 
     imuPropagate_joint{n}=repropagate_VINS_Mono(imuData_fragment_joint{n},ba,bg);
 
-
 end
-
 
 for n=1:size(map_camera_times,1)
 
@@ -156,7 +150,8 @@ mvSets=zeros(8,mMaxIterations);
 for i=1:mMaxIterations
     mvSets(:,i)=randperm(size(pts1_n,1),8)';
 end
-
+%%
+%load('init_data.mat');
 
 [vbMatchesInliersH, SH, H,R21H,t21H,vP3DH,goodH,errorH] = FindHomography_change(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
 
@@ -170,9 +165,11 @@ RH = SH/(SH+SF);
 if RH>0.40
     R21=R21H;%ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
     t21=t21H;
+    vP3D=vP3DH;
 else
     R21=R21F;%ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
     t21=t21F;
+    vP3D=vP3DF;
 end
 
 % R2=R2_;
@@ -187,12 +184,14 @@ end
 R2=R21;
 T2=t21;
 
+[R2,T2]=optimaization_Fundamental_R_T(pts1_n, pts2_n,R2,T2,vP3D);
+
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
 
 %drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id,cam_id,frame1,frame2);
 
 draw_init(features,map_camera_times,R1,T1,R2,T2,cam_id,cam_id,frame1,frame2);
-
+%%
 x_I_k(1:4,1)=rotMat2qRichard(R1);
 x_I_k(5:7,1)=T1;
 x_I_k(1:4,2)=rotMat2qRichard(R2);
@@ -211,14 +210,14 @@ for i=3:size(map_camera_times,1)
     x_I_k(5:7,i)=T_temp;
 
 end
-%%
+
+%drawProjection(x_I_k,G_p_f,eye(3),zeros(3,1));
 
 [x_I_k_opti,G_p_f_opti]=optimaization_vins_mono_init_using_features(x_I_k,features,camK,camD,map_camera_times);
 
 drawProjection(x_I_k_opti,G_p_f_opti,eye(3),zeros(3,1));
-
-%%    
-
+   
+%%
 AA=[];
 bb=[];
 
@@ -246,22 +245,14 @@ end
 
 % bg=AA\bb ;       % The calculation here is not good !!!!!! not good !!!!!
 
-
-
-%%
-
 n=size(map_camera_times,1);
-
 
 M=zeros((n-1)*6,n*3+3+1);
 
 b=zeros((n-1)*6,1);
 
-
 R_c_b=camR';
 T_b_c=camT;
-
-
 
 for i=2:n
 
@@ -275,13 +266,11 @@ for i=2:n
     R_c0_ck=quatern2rotMat(x_I_k_opti(1:4,i-1));
     R_c0_ck_1=quatern2rotMat(x_I_k_opti(1:4,i));
 
-
     M((i-2)*6+1:(i-2)*6+3,(i-2)*3+1:(i-2)*3+3)=-eye(3)*delta_t;
 
     M((i-2)*6+1:(i-2)*6+3,n*3+1:n*3+1)=p_c0_ck_1-P_c0_ck;
 
     M((i-2)*6+1:(i-2)*6+3,n*3+2:n*3+4)=0.5*eye(3)*delta_t^2;
-
 
     M((i-2)*6+4:(i-2)*6+6,(i-2)*3+1:(i-2)*3+3)=-eye(3);
    
@@ -294,8 +283,6 @@ for i=2:n
     b((i-2)*6+4:(i-2)*6+6,1)=R_c0_ck*R_c_b*beta_k_k_1;
 
 end
-
-%%
 
 
 A1=M(:,1:end-3);
@@ -322,10 +309,7 @@ scale=x1(end);
 q_w_c0=getInitQuaternionfromAcc_xfront(g_c0);
 R_w_c0=quatern2rotMat(q_w_c0);
 
-
-
 for i=1:size(x_I_k_opti,2)
-
 
     q_c0_ck=x_I_k_opti(1:4,i);
 
@@ -333,7 +317,6 @@ for i=1:size(x_I_k_opti,2)
 
     R_c0_ck=quatern2rotMat(q_c0_ck);
 
-    
     R_w_ck=R_w_c0*R_c0_ck;
 
     P_w_ck=R_w_c0*P_c0_ck;
@@ -346,14 +329,9 @@ for i=1:size(x_I_k_opti,2)
 
     x_I_K_body(5:7,i)=P_w_bk;
 
-
 end
 
-
 G_p_f_body=R_w_c0*G_p_f_opti*scale;
-
-
-
 
 drawProjection(x_I_K_body,G_p_f_body,camR,camT);
 
