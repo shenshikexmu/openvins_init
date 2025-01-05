@@ -1,4 +1,4 @@
-function [vbMatchesInliers, score, F21,R21,t21,vP3D] = FindFundamental_change(mvMatches12, mvKeys1, mvKeys2, mvSets, mMaxIterations, mSigma)
+function [vbMatchesInliers, score, F21,R21,t21,vP3D,maxGood,minError] = FindFundamental_change(mvMatches12, mvKeys1, mvKeys2, mvSets, mMaxIterations, mSigma)
 
 % Number of putative matches
 N = size(mvMatches12, 1);
@@ -18,6 +18,7 @@ vPn2i = zeros(8, 2);
 F21i = [];
 vbCurrentInliers = false(N,1);
 currentScore = 0;
+minError=inf;
 
 mK=eye(3);
 maxGood=0;
@@ -25,12 +26,6 @@ maxGood=0;
 % Perform all RANSAC iterations and save the solution with the highest score
 for it = 1:mMaxIterations
     % Select a minimum set
-%     for j = 1:8
-%         idx = mvSets{it}(j);
-% 
-%         vPn1i(j, :) = vPn1(mvMatches12{idx}(1), :);
-%         vPn2i(j, :) = vPn2(mvMatches12{idx}(2), :);
-%     end
     vPn1i=vPn1(mvMatches12(mvSets(:,it)), :);
     vPn2i=vPn2(mvMatches12(mvSets(:,it)), :);
 
@@ -43,7 +38,7 @@ for it = 1:mMaxIterations
     % Check the score and update if necessary
     [currentScore,vbCurrentInliers] = CheckFundamental(F21i, mvMatches12, mvKeys1, mvKeys2, mSigma);
 
-    [success,R21i, t21i,nGoodi,vP3Di, vbTriangulated]=ReconstructF(vbCurrentInliers,F21i,mK,mvMatches12, mvKeys1, mvKeys2,0,20,mSigma*mSigma);
+    [success,R21i, t21i,nGoodi,vP3Di, vbTriangulated,errori]=ReconstructF_change(vbCurrentInliers,F21i,mK,mvMatches12, mvKeys1, mvKeys2,0,20,mSigma*mSigma);
 
     if success==1
 
@@ -56,14 +51,16 @@ for it = 1:mMaxIterations
             vP3D=vP3Di;
             R21=R21i;
             t21=t21i;
+            minError=errori;
         elseif nGoodi==maxGood
-            if currentScore>score
+            if minError>errori%currentScore>score
                 vbMatchesInliers=vbTriangulated;
                 score=currentScore;
                 F21=F21i;
                 vP3D=vP3Di;
                 R21=R21i;
                 t21=t21i;
+                minError=errori;
             end
         end
     end
