@@ -210,16 +210,49 @@ end
 
 %%
 
-i=129 ;  % 106, 120
+load('Homography_data.mat');
+
+i=36; % 130 152 154 161
+
 
 drawOpticalFlowLK_featrues_mvSets(imgpyr,frame1,frame2,pts1,pts2,mvSets(:,i));
 
+
     
 
-[vbMatchesInliersH, SH, H,R21,t21,vP3D] = FindHomography_change(mvMatches12, pts2_n, pts1_n, mvSets(:,i), 1, mSigma);
+[vbMatchesInliersH, SH, H,R21,t21,vP3D,vR,vt] = FindHomography_change(mvMatches12, pts2_n, pts1_n, mvSets(:,i), 1, mSigma);
+
+
+%%
+for i=1:8
+
+    R1=eye(3);
+    T1=[0;0;0];
+    R2=vR{i};
+    T2=vt{i};
+    
+    features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
+    
+    %drawOpticalFlowLK_featrues(imgpyr,features,map_camera_times,cam_id,cam_id,frame1,frame2);
+    
+    draw_init(features,map_camera_times,R1,T1,R2,T2,cam_id,cam_id,frame1,frame2);
+
+end
+
+%%
 
 
 
+[vbMatchesInliersF, SF, F,R21,t21,vP3D] = FindFundamental_change(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
+
+
+
+R2=R21;
+T2=t21;
+
+features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
+
+draw_init(features,map_camera_times,R1,T1,R2,T2,cam_id,cam_id,frame1,frame2);
 
 
 

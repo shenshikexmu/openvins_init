@@ -1,4 +1,4 @@
-function [success,R21, t21,bestGood,vP3D, vbTriangulated] = ReconstructH(vbMatchesInliers, H21, K,mvMatches12, mvKeys1, mvKeys2, minParallax, minTriangulated,mSigma2)
+function [success,R21, t21,bestGood,vP3D, vbTriangulated,vR,vt] = ReconstructH(vbMatchesInliers, H21, K,mvMatches12, mvKeys1, mvKeys2, minParallax, minTriangulated,mSigma2)
     % Number of matches
     N = sum(vbMatchesInliers);
     
@@ -65,14 +65,11 @@ function [success,R21, t21,bestGood,vP3D, vbTriangulated] = ReconstructH(vbMatch
     sphi = [aux_sphi, -aux_sphi, -aux_sphi, aux_sphi];
 
     for i = 1:4
-        Rp = eye(3);
-        Rp(1,1) = cphi;
-        Rp(1,3) = sphi(i);
-        Rp(2,2) = -1;
-        Rp(3,1) = sphi(i);
-        Rp(3,3) = -cphi;
+        Rp=[cphi   , 0, sphi(i);...
+              0    ,-1,  0;...
+            sphi(i), 0, -cphi];
 
-        R = s * U * Rp * Vt;
+        R = s * U * Rp * V';
         vR{4 + i} = R;
 
         tp = [x1(i); 0; x3(i)] * (d1 + d3);
@@ -89,7 +86,6 @@ function [success,R21, t21,bestGood,vP3D, vbTriangulated] = ReconstructH(vbMatch
 
     % Initialize variables for the best solution
     bestGood = 0;
-    secondBestGood = 0;
     bestSolutionIdx = -1;
     bestParallax = -1;
     bestP3D = [];
@@ -100,7 +96,8 @@ function [success,R21, t21,bestGood,vP3D, vbTriangulated] = ReconstructH(vbMatch
 %         parallaxi = 0;
 %         vP3Di = [];
 %         vbTriangulatedi = [];
-        [nGood, vP3Di, vbTriangulatedi, parallaxi] = CheckRT(vR{i}, vt{i}, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, 4.0 * mSigma2);
+        [nGood, vP3Di, vbTriangulatedi, parallaxi,allError] = CheckRT(vR{i}, vt{i}, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, 4.0 * mSigma2);
+       
 
         if nGood > bestGood
             secondBestGood = bestGood;

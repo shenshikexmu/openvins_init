@@ -1,4 +1,4 @@
-function [vbMatchesInliers, score, H21,R21,t21,vP3D] = FindHomography_change(mvMatches12, mvKeys1, mvKeys2, mvSets, mMaxIterations, mSigma)
+function [vbMatchesInliers, score, H21,R21,t21,vP3D,vR,vt] = FindHomography_change(mvMatches12, mvKeys1, mvKeys2, mvSets, mMaxIterations, mSigma)
 % Number of putative matches
 N = size(mvMatches12, 1);
 
@@ -10,6 +10,10 @@ T2inv = inv(T2);
 % Best Results variables
 score = 0.0;
 vbMatchesInliers = false(N, 1);
+H21=[];
+R21=[];
+t21=[];
+vP3D=[];
 
 % Iteration variables
 vPn1i = zeros(8, 2);
@@ -40,7 +44,7 @@ for it = 1:mMaxIterations
 
     [currentScore, vbCurrentInliers] = CheckHomography(H21i, H12i, mvMatches12, mvKeys1, mvKeys2, mSigma);
 
-    [success,R21i, t21i,nGoodi,vP3Di, vbTriangulated]=ReconstructH(vbCurrentInliers,H21i,mK,mvMatches12,mvKeys1, mvKeys2,0,20,mSigma*mSigma);
+    [success,R21i, t21i,nGoodi,vP3Di, vbTriangulated,vR,vt]=ReconstructH(vbCurrentInliers,H21i,mK,mvMatches12,mvKeys1, mvKeys2,0,20,mSigma*mSigma);
 
     if success==1
 

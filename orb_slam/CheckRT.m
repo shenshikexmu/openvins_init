@@ -1,4 +1,4 @@
-function [nGood, vP3D, vbGood, parallax] = CheckRT(R, t, vKeys1, vKeys2, vMatches12, vbMatchesInliers, K, th2)
+function [nGood, vP3D, vbGood, parallax,allError] = CheckRT(R, t, vKeys1, vKeys2, vMatches12, vbMatchesInliers, K, th2)
     
 % Calibration parameters
 fx = K(1, 1);
@@ -10,6 +10,7 @@ N = length(vKeys1);
 vbGood = false(N, 1);
 vP3D = zeros(3, N);  % 3D points
 vCosParallax = [];   % To store the cos of parallax
+allError=0;
 
 % Camera 1 Projection Matrix K[I|0]
 P1 = [K, zeros(3, 1)];
@@ -63,9 +64,9 @@ for i = 1:length(vMatches12)
     im1y = fy * p3dC1(2) * invZ1 + cy;
     squareError1 = (im1x - kp1(1))^2 + (im1y - kp1(2))^2;
 
-    if squareError1 > th2
-        continue;
-    end
+%     if squareError1 > th2
+%         continue;
+%     end
 
     % Reprojection error in the second image
     invZ2 = 1 / p3dC2(3);
@@ -73,9 +74,10 @@ for i = 1:length(vMatches12)
     im2y = fy * p3dC2(2) * invZ2 + cy;
     squareError2 = (im2x - kp2(1))^2 + (im2y - kp2(2))^2;
 
-    if squareError2 > th2
-        continue;
-    end
+%     if squareError2 > th2
+%         continue;
+%     end
+    allError=allError+squareError1+squareError2;
 
     % Store the 3D point and parallax
     vCosParallax = [vCosParallax; cosParallax];
