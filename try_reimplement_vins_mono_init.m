@@ -150,17 +150,12 @@ mvSets=zeros(8,mMaxIterations);
 for i=1:mMaxIterations
     mvSets(:,i)=randperm(size(pts1_n,1),8)';
 end
-%%
-%load('init_data.mat');
 
 [vbMatchesInliersH, SH, H,R21H,t21H,vP3DH,goodH,errorH] = FindHomography_change(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
 
 [vbMatchesInliersF, SF, F,R21F,t21F,vP3DF,goodF,errorF] = FindFundamental_change(mvMatches12, pts2_n, pts1_n, mvSets, mMaxIterations, mSigma);
 
 RH = SH/(SH+SF);
-
-%[success,R21, t21,vP3D, vbTriangulated]=ReconstructH(vbMatchesInliersH,H,mK,mvMatches12,pts1_n, pts2_n,1.0,20,mSigma2);
-%[success,R21, t21,vP3D, vbTriangulated]=ReconstructF(vbMatchesInliersF,F,mK,mvMatches12,pts2_n, pts1_n,1.0,20,mSigma2);
 
 if RH>0.40
     R21=R21H;%ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
