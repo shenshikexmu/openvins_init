@@ -186,8 +186,8 @@ end
 
 R2=R21;
 T2=t21;
-
-[R2,T2]=optimaization_Fundamental_R_T(pts1_n, pts2_n,R2,T2,vP3D);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%[R2,T2]=optimaization_Fundamental_R_T(pts1_n, pts2_n,R2,T2,vP3D);
 
 features=features_p_FinA_from_frame1_frame2(features,map_camera_times,cam_id,cam_id,frame1,frame2,R1,T1,R2,T2);
 
