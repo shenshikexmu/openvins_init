@@ -43,6 +43,8 @@ for i=1:size(R3,2)
 end
 
 
+
+
 [R_,T_]=My_GaussNewton_PnP(PP,R_,T_);
 
 

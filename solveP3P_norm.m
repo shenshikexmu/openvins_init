@@ -66,12 +66,12 @@ n=0;
 
 for i=1:4
     
-    if imag(xv(i,1)) ==0
+    %if imag(xv(i,1)) ==0
         
         n=n+1;
         xV(n,1)=real(xv(i,1));
            
-    end
+    %end
      
 end
 
